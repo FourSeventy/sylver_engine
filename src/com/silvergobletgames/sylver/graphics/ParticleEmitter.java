@@ -21,14 +21,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 //TODO redo how this class works
-public abstract class ParticleEmitter extends NetworkedSceneObject implements SavableSceneObject
+public abstract class AbstractParticleEmitter extends NetworkedSceneObject implements SavableSceneObject
 {
     //position of the emitter
     protected SylverVector2f position;
     //angle of the emitter in degrees
-    protected float angle;
-    //Texture to draw particles with
-    protected Image image; 
+    protected float angle;  
     //total duration
     private int duration; //in frames 60frames/second
     //Current life left
