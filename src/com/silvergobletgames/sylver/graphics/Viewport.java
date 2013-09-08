@@ -207,7 +207,7 @@ public class Viewport
             widthOfObj = ((Text)object).getWidth() * ((Text)object).getScale();
             heightOfObj = ((Text)object).getHeight() * ((Text)object).getScale();
         }
-        else if(object instanceof ParticleEmitter)
+        else if(object instanceof AbstractParticleEmitter)
         {
             positionOfObj = new SylverVector2f(object.getPosition());
             widthOfObj = 500;

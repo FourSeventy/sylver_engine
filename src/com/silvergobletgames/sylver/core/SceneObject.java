@@ -33,7 +33,7 @@ public abstract class SceneObject
     //masks for the core SceneObjects located in the sylver engine
     public static enum CoreClasses implements SceneObjectClassMask
     {
-        IMAGE(Image.class),LIGHTSOURCE(LightSource.class),DARKSOURCE(DarkSource.class),PARTICLEEMITTER(ParticleEmitter.class),TEXT(Text.class);
+        IMAGE(Image.class),LIGHTSOURCE(LightSource.class),DARKSOURCE(DarkSource.class),IMAGEPARTICLEEMITTER(ImageParticleEmitter.class),POINTPARTICLEEMITTER(PointParticleEmitter.class),TEXT(Text.class);
         
         private Class representativeClass;
         
