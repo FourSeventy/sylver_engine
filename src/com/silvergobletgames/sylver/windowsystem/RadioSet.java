@@ -75,18 +75,17 @@ public class RadioSet<E> extends WindowComponent {
       
     public void setPosition(float x, float y)
     {
-        this.xPosition = x;
-        this.yPosition = y;
+        super.setPosition(x,y);
         
         for(int i = 0; i< circles.size(); i++)
         {
-            circles.get(i).setPosition(this.xPosition,this.yPosition + 25 * i);      
+            circles.get(i).setPosition(this.getPosition().x,this.getPosition().y + 25 * i);      
         }
         
         for(int i = 0; i< labels.size(); i++)
         {
-            labels.get(i).getPosition().x = this.xPosition +30;
-            labels.get(i).getPosition().y = this.yPosition + 3 + 25* i; 
+            labels.get(i).getPosition().x = this.getPosition().x +30;
+            labels.get(i).getPosition().y = this.getPosition().y + 3 + 25* i; 
         }
     }
     
@@ -114,13 +113,13 @@ public class RadioSet<E> extends WindowComponent {
         
         //add the label
         Text t = new Text(entry.getKey());
-        t.getPosition().x = this.xPosition +50;
-        t.getPosition().y = this.yPosition + 20* elements.size();   
+        t.getPosition().x = this.getPosition().x +50;
+        t.getPosition().y = this.getPosition().y + 20* elements.size();   
         t.setScale(.7f);
         labels.add(t);
         
         //add the circle
-        final Button m = new Button("circle.png",this.xPosition,this.yPosition + 20 * elements.size(),20,20);
+        final Button m = new Button("circle.png",this.getPosition().x,this.getPosition().y + 20 * elements.size(),20,20);
         m.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) 
             {

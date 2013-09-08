@@ -132,7 +132,7 @@ public class TextArea extends WindowComponent
             Point mouseLocation = input.getScreenMouseLocation();
             if (input.isMouseClicked()) 
             {
-                if (mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height)
+                if (mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height)
                 {
                     this.focused = true;
                     input.killMouseClick();
@@ -260,7 +260,7 @@ public class TextArea extends WindowComponent
                         width = labelWithWidthAdjust.getWidth();
                     }                  
                    
-                    this.cursor.setPosition(this.xPosition + width + 3, this.yPosition + this.height - 25 - (currentLineIndex * height));
+                    this.cursor.setPosition(this.getPosition().x + width + 3, this.getPosition().y + this.height - 25 - (currentLineIndex * height));
                               
                     // up
                     if(input.isKeyReleased(KeyEvent.VK_UP))
@@ -311,8 +311,7 @@ public class TextArea extends WindowComponent
 
     public void setPosition(float x, float y) 
     {
-        this.xPosition = x;
-        this.yPosition = y;
+        super.setPosition(x,y);
 
         //set background and edge positions
         this.background.setPosition(x, y);

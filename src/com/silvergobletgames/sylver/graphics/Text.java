@@ -37,8 +37,6 @@ public class Text extends NetworkedSceneObject implements Anchorable
     private Anchorable.Anchor anchor = Anchor.BOTTOMLEFT;
     // The string of this Text 
     protected String text;
-    // The position to render this text 
-    protected SylverVector2f position;
     // the scale of the text 
     protected float scale = 1;
     // The angle to rotate this text by 
@@ -183,16 +181,6 @@ public class Text extends NetworkedSceneObject implements Anchorable
             }
         }
         
-    }
-     
-    public SylverVector2f getPosition() 
-    {
-       return this.position;
-    }
-
-    public void setPosition(float x, float y)
-    {
-        this.position = new SylverVector2f(x,y);
     }
     
     public void addedToScene()

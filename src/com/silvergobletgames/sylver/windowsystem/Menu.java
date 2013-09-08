@@ -103,8 +103,8 @@ public class Menu extends Window {
     {
         
             InputSnapshot input = Game.getInstance().getInputHandler().getInputSnapshot();
-            this.mouseDragXAdjust = input.getScreenMouseLocation().x - xPosition;
-            this.mouseDragYAdjust = input.getScreenMouseLocation().y - yPosition;
+            this.mouseDragXAdjust = input.getScreenMouseLocation().x - getPosition().x;
+            this.mouseDragYAdjust = input.getScreenMouseLocation().y - getPosition().y;
         
     }
     
@@ -114,8 +114,10 @@ public class Menu extends Window {
         {
             
                 InputSnapshot input = Game.getInstance().getInputHandler().getInputSnapshot();
-                this.xPosition = input.getScreenMouseLocation().x - this.mouseDragXAdjust;
-                this.yPosition = input.getScreenMouseLocation().y - this.mouseDragYAdjust;
+                float xPosition = input.getScreenMouseLocation().x - this.mouseDragXAdjust;
+                float yPosition = input.getScreenMouseLocation().y - this.mouseDragYAdjust;
+                
+                this.setPosition((int)xPosition,(int)yPosition);
             
         }
         super.update();        

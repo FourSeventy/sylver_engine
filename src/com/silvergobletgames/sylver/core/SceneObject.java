@@ -12,6 +12,8 @@ import javax.media.opengl.GL2;
  */
 public abstract class SceneObject 
 {   
+    //the Scene Object's position
+    protected SylverVector2f position = new SylverVector2f();
     //the Scene Object's identification string
     protected String ID;
     //the Scene that this object belongs too
@@ -64,20 +66,34 @@ public abstract class SceneObject
     
     public abstract void draw(GL2 gl);
     
-    public abstract SylverVector2f getPosition();
-    
-    public abstract void setPosition(float x, float y);
-    
     public abstract void addedToScene();
     
     public abstract void removedFromScene();
     
     
-    
-      
+        
     //======================
     // Final Accessors
     //======================
+    
+    /**
+     * Returns the position of the SceneObject
+     * @return the position of the SceneObject
+     */
+    public final SylverVector2f getPosition()
+    {
+        return this.position;
+    }
+    
+    /**
+     * Sets the position of the SceneObject
+     * @param x x position of the SceneObject
+     * @param y y position of the SceneObject
+     */
+    public void setPosition(float x, float y)
+    {
+        this.position.set(x, y);
+    }
     
     /**
      * Returns the ID of this SceneObject

@@ -173,7 +173,7 @@ public class DropDown<E> extends WindowComponent
                 if(input.isMouseClicked())
                 {                   
                     //if you are in the main area
-                    if(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height)
+                    if(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height)
                     {
                         if(this.opened)
                             closeDropDown();
@@ -202,8 +202,7 @@ public class DropDown<E> extends WindowComponent
     public void setPosition(float x, float y)
     {
  
-        this.xPosition = x;
-        this.yPosition =y;
+        super.setPosition(x,y);
         
         this.background.setPosition(x, y);
         
@@ -259,11 +258,11 @@ public class DropDown<E> extends WindowComponent
     private boolean mouseInsideExpandedDropdown(Point mouseLocation){
         if (expandDir == DropDown.POPULATE_DOWNWARDS)
         {
-            return mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition - this.openHeight && mouseLocation.y <= this.yPosition + this.height;
+            return mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y - this.openHeight && mouseLocation.y <= this.getPosition().y + this.height;
         }
         else
         {
-            return mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition + this.height && mouseLocation.y <= this.yPosition + this.height + this.openHeight;
+            return mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y + this.height && mouseLocation.y <= this.getPosition().y + this.height + this.openHeight;
         }
     }
     

@@ -23,9 +23,7 @@ public class Window extends SceneObject
     //the image that represents the background of the window
     protected Image background;
     
-    //rendering position and dimentions
-    protected float xPosition;
-    protected float yPosition;    
+    //rendering position and dimentions  
     protected float width;
     protected float height;
 
@@ -60,8 +58,7 @@ public class Window extends SceneObject
         background.setDimensions(width, height); 
         
         //sets x and y position of the window
-        this.xPosition = xPosition;
-        this.yPosition = yPosition;
+        this.setPosition(xPosition,yPosition);
         this.width = width;
         this.height = height;       
     }
@@ -76,14 +73,14 @@ public class Window extends SceneObject
        if(this.isOpen())
        {
            //adjust the backgrounds position
-           this.background.setPosition(this.xPosition, this.yPosition); 
+           this.background.setPosition(this.getPosition().x, this.getPosition().y); 
            
 
            //update all of the components
            ArrayList<WindowComponent> updateList = new ArrayList<>(windowComponents);
            for(int i = updateList.size() -1; i >= 0; i--)
            {              
-               updateList.get(i).setPosition( this.xPosition + updateList.get(i).xWindowRelative, this.yPosition + updateList.get(i).yWindowRelative);
+               updateList.get(i).setPosition( this.getPosition().x + updateList.get(i).xWindowRelative, this.getPosition().y + updateList.get(i).yWindowRelative);
                updateList.get(i).update();
            }
            
@@ -93,21 +90,21 @@ public class Window extends SceneObject
                Point mouseLocation = Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation(); 
 
                 //determine if we need to fire a mouseEntered event
-                if(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height && mouseHovering == false)
+                if(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height && mouseHovering == false)
                 {
                     this.fireAction(this, "mouseEntered");
                 }
 
 
                 //determine if we need to fire a mouseExited event
-                if(!(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height) && mouseHovering == true)
+                if(!(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height) && mouseHovering == true)
                 {
 
                     this.fireAction(this,"mouseExited");              
                 }
 
                 //update mouseHovered boolean
-                if(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height)
+                if(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height)
                     this.mouseHovering = true;
                 else
                     this.mouseHovering = false;
@@ -133,21 +130,16 @@ public class Window extends SceneObject
         }
     }
     
-    public SylverVector2f getPosition()
-    {
-        return new SylverVector2f((int)xPosition,(int)yPosition);
-    }
     
     public void setPosition(float x, float y) 
     {
-        this.xPosition = x;
-        this.yPosition = y;
+        super.setPosition(x,y);
         
         //set position for all components
         ArrayList<WindowComponent> updateList = new ArrayList<>(windowComponents);
         for(int i = updateList.size() -1; i >= 0; i--)
         {
-            updateList.get(i).setPosition( this.xPosition + updateList.get(i).xWindowRelative, this.yPosition + updateList.get(i).yWindowRelative);
+            updateList.get(i).setPosition( this.getPosition().x + updateList.get(i).xWindowRelative, this.getPosition().y + updateList.get(i).yWindowRelative);
         }
     }
     
@@ -210,7 +202,7 @@ public class Window extends SceneObject
      */
     public void addComponent(WindowComponent wc)
     {
-        wc.setPosition( this.xPosition + wc.xWindowRelative, this.yPosition + wc.yWindowRelative);
+        wc.setPosition( this.getPosition().x + wc.xWindowRelative, this.getPosition().y + wc.yWindowRelative);
         windowComponents.add(wc);
         
         //sets components owning scene
@@ -224,7 +216,7 @@ public class Window extends SceneObject
      */
     public void addComponent(int position, WindowComponent wc)
     {
-        wc.setPosition( this.xPosition + wc.xWindowRelative, this.yPosition + wc.yWindowRelative);
+        wc.setPosition( this.getPosition().x + wc.xWindowRelative, this.getPosition().y + wc.yWindowRelative);
         windowComponents.add(position,wc);
         
         //sets components owning scene

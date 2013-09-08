@@ -15,8 +15,6 @@ public abstract class WindowComponent extends SceneObject
 {
 
     //position and size of the component
-    protected float xPosition;
-    protected float yPosition;   
     protected float xWindowRelative;
     protected float yWindowRelative;
     protected float width;
@@ -40,8 +38,7 @@ public abstract class WindowComponent extends SceneObject
     {        
         this.xWindowRelative = x;
         this.yWindowRelative = y;
-        this.xPosition = x;
-        this.yPosition = y;
+        super.setPosition(x, y);
     }
     
     
@@ -52,13 +49,6 @@ public abstract class WindowComponent extends SceneObject
     public abstract void draw(GL2 gl);
        
     public abstract void update();        
-    
-    public abstract void setPosition(float x, float y); 
-    
-    public SylverVector2f getPosition()
-    {
-        return new SylverVector2f(this.xPosition,this.yPosition);
-    }
     
     public void addedToScene()
     {

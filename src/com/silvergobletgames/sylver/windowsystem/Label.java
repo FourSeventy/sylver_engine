@@ -56,8 +56,7 @@ public class Label extends WindowComponent {
     @Override
     public void setPosition(float x, float y)
     {
-        this.xPosition =x;
-        this.yPosition = y;
+        super.setPosition(x,y);
         this.text.setPosition(x, y);
     }
     

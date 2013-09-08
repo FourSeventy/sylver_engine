@@ -18,9 +18,9 @@ import javax.media.opengl.GL2;
  *
  * @author Mike
  */
-public class DarkSource extends NetworkedSceneObject implements SavableSceneObject {
+public class DarkSource extends NetworkedSceneObject implements SavableSceneObject
+{
     
-    private SylverVector2f position;
     private float width;
     private float height;
     private float intensity = 1;
@@ -57,16 +57,6 @@ public class DarkSource extends NetworkedSceneObject implements SavableSceneObje
     public void draw(GL2 gl)
     {
     }  
-
-    public SylverVector2f getPosition()
-    {
-        return this.position;
-    }
-
-    public void setPosition(float x, float y)
-    {
-        this.position.set(x, y);       
-    }
 
     public void addedToScene()
     {

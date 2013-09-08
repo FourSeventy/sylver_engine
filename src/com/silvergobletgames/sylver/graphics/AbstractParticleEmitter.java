@@ -22,8 +22,6 @@ import java.util.logging.Logger;
 //TODO redo how this class works
 public abstract class AbstractParticleEmitter extends NetworkedSceneObject implements SavableSceneObject
 {
-    //position of the emitter
-    private SylverVector2f position;
     //angle of the emitter in degrees
     private float angle;  
     //total duration
@@ -115,26 +113,6 @@ public abstract class AbstractParticleEmitter extends NetworkedSceneObject imple
                 p.update();
         }
 
-    }
-    
-    
-    /**
-     * 
-     * @return The position of the emitter
-     */
-    public SylverVector2f getPosition()
-    {
-        return position;
-    }
-    
-    /**
-     * Sets the position of the emitter
-     * @param x x position
-     * @param y y position
-     */
-    public void setPosition(float x , float y)
-    {
-        this.position.set(x, y);
     }
     
     public void addedToScene()

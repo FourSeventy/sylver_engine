@@ -54,9 +54,7 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
     //time
     private float time;      
     
-  
-    //the position of the image
-    private SylverVector2f position = new SylverVector2f();
+ 
     //width of the image 
     private float width;
     //height of the image 
@@ -426,15 +424,6 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
         for (String overlayKey : this.imageOverlays.keySet()) 
             this.imageOverlays.get(overlayKey).getImage().draw(gl2);
         
-    }
-    
-    /**
-     * Returns the position of the Image
-     * @return Vector2f containing the position of the Image
-     */
-    public SylverVector2f getPosition()
-    {
-        return this.position;
     }
     
     /**

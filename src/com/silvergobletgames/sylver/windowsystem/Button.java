@@ -102,14 +102,14 @@ public class Button extends WindowComponent  {
         //update the image
         if(image != null)
         {
-            image.setPosition(xPosition, yPosition);
+            image.setPosition(this.getPosition().x, this.getPosition().y);
             this.image.update();          
         }
         
         if(text != null)
         {
-            this.text.getPosition().x = this.xPosition + this.textPaddingX;
-            this.text.getPosition().y=  this.yPosition + this.textPaddingY;
+            this.text.getPosition().x = this.getPosition().x + this.textPaddingX;
+            this.text.getPosition().y=  this.getPosition().y + this.textPaddingY;
             this.text.update();
         }
         
@@ -127,7 +127,7 @@ public class Button extends WindowComponent  {
                 //determine if we need to fire a clicked event
                 if(input.isMouseClicked())
                 {                   
-                    if(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height)
+                    if(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height)
                     {
                         if(!dontKillClick)
                             input.killMouseClick();
@@ -140,7 +140,7 @@ public class Button extends WindowComponent  {
 
                 if(input.isMouseDown())
                 {
-                    if(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height)
+                    if(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height)
                     {
                         if(!dontKillClick)
                             input.killMouseClick();
@@ -151,28 +151,28 @@ public class Button extends WindowComponent  {
 
                 if(!input.isMouseDown())
                 {
-                    if(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height)
+                    if(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height)
                     {
                         this.fireAction(this, "mouseUp");
                     }
                 }
 
                 //determine if we need to fire a mouseExited event
-                if(!(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height) && mouseHovering == true)
+                if(!(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height) && mouseHovering == true)
                 {
 
                     this.fireAction(this,"mouseExited");              
                 }
 
                 //determine if we need to fire a mouseEntered event
-                if(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height && mouseHovering == false)
+                if(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height && mouseHovering == false)
                 {
                     this.fireAction(this, "mouseEntered");
                 }
 
 
                 //update mouseHovered boolean
-                if(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height)
+                if(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height)
                     this.mouseHovering = true;
                 else
                     this.mouseHovering = false;
@@ -209,10 +209,9 @@ public class Button extends WindowComponent  {
         }
     }
     
-     public void setPosition(float x, float y)
+    public void setPosition(float x, float y)
     {
-        this.xPosition = x;
-        this.yPosition = y;
+        super.setPosition(x,y);
         
         if(image != null)
             image.setPosition(x, y);
@@ -273,6 +272,6 @@ public class Button extends WindowComponent  {
     {
         this.image = image;
         image.setDimensions(width, height);
-        image.setPosition(this.xPosition, this.yPosition);
+        image.setPosition(this.getPosition().x, this.getPosition().y);
     }
 }

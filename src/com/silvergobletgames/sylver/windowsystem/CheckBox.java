@@ -83,7 +83,7 @@ public class CheckBox extends WindowComponent {
                 //determine if we need to fire a clicked event
                 if(input.isMouseClicked())
                 {                   
-                    if(mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height)
+                    if(mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height)
                     {             
                         //toggle the checkbox
                         this.checked = !this.checked;
@@ -101,8 +101,7 @@ public class CheckBox extends WindowComponent {
       
     public void setPosition(float x, float y)
     {
-       this.xPosition = x;
-       this.yPosition = y;
+       super.setPosition(x,y);
         
         checkedImage.setPosition(x, y);
         uncheckedImage.setPosition(x, y);

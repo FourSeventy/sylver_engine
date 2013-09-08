@@ -19,7 +19,6 @@ import java.util.Map;
 public class LightSource extends NetworkedSceneObject implements SavableSceneObject
 {
     
-    private SylverVector2f position;
     private float size;
     protected float conicalRadius; //stored as radians
     protected float direction; //stored as radians 
@@ -86,16 +85,6 @@ public class LightSource extends NetworkedSceneObject implements SavableSceneObj
     public void draw(GL2 gl)
     {
         
-    }
-    
-    public SylverVector2f getPosition() 
-    {
-        return this.position;
-    }
-  
-    public void setPosition(float x, float y)
-    {
-        this.position = new SylverVector2f(x,y);
     }
     
     public void addedToScene()

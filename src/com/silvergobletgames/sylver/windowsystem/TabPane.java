@@ -91,7 +91,7 @@ public class TabPane extends WindowComponent {
         for(Button tab: tabs)
            accumWidth += tab.width;
         
-        final Button tabButton = new Button(image,t,accumWidth + 5,this.yPosition + this.height - 5,t.getWidth() + 20,30);  
+        final Button tabButton = new Button(image,t,accumWidth + 5,this.getPosition().y + this.height - 5,t.getWidth() + 20,30);  
         tabButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e)
             {
@@ -194,8 +194,7 @@ public class TabPane extends WindowComponent {
     public void setPosition(float x, float y)
     {
         
-        this.xPosition = x;
-        this.yPosition =y;
+        super.setPosition(x,y);
         
          this.background.setPosition(x, y);
          topEdge.setPosition(x, y + height - 5);
@@ -214,7 +213,7 @@ public class TabPane extends WindowComponent {
         }
         
          for(WindowComponent wc: this.componentList.get(selectedTab))
-             wc.setPosition( this.xPosition + wc.xWindowRelative, this.yPosition + wc.yWindowRelative);
+             wc.setPosition( this.getPosition().x + wc.xWindowRelative, this.getPosition().y + wc.yWindowRelative);
         
     }
     
@@ -240,7 +239,7 @@ public class TabPane extends WindowComponent {
         selectedTab = i;
         
         for(WindowComponent wc: this.componentList.get(selectedTab))
-             wc.setPosition( this.xPosition + wc.xWindowRelative, this.yPosition + wc.yWindowRelative);
+             wc.setPosition( this.getPosition().x + wc.xWindowRelative, this.getPosition().y + wc.yWindowRelative);
     }
     
     public int getSelectedTab()

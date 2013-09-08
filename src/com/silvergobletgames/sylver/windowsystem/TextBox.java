@@ -100,9 +100,9 @@ public class TextBox extends WindowComponent {
         if(!this.hidden)
         {
             //set text and cursor position
-             this.text.setPosition(this.xPosition + 10, this.yPosition + 10);
+             this.text.setPosition(this.getPosition().x + 10, this.getPosition().y + 10);
              if (focused)
-                 this.cursor.setPosition(this.xPosition + 11 + text.getWidth(), this.yPosition + 5);  
+                 this.cursor.setPosition(this.getPosition().x + 11 + text.getWidth(), this.getPosition().y + 5);  
 
             //handle cursor blinking
             cursorBlink++;
@@ -123,7 +123,7 @@ public class TextBox extends WindowComponent {
                 Point mouseLocation = input.getScreenMouseLocation(); 
                 if(input.isMouseClicked())
                 {                   
-                    if(  mouseLocation.x >= this.xPosition && mouseLocation.x <= this.xPosition + this.width && mouseLocation.y >= this.yPosition && mouseLocation.y <= this.yPosition + this.height)
+                    if(  mouseLocation.x >= this.getPosition().x && mouseLocation.x <= this.getPosition().x + this.width && mouseLocation.y >= this.getPosition().y && mouseLocation.y <= this.getPosition().y + this.height)
                     {
                     this.focused = true;
                     input.killMouseClick();
@@ -155,9 +155,9 @@ public class TextBox extends WindowComponent {
                         }
                     }
                     text.setText(text.toString() + builder);
-                    text.setPosition(this.xPosition + 10, this.yPosition + 10);
+                    text.setPosition(this.getPosition().x + 10, this.getPosition().y + 10);
                     if (focused)
-                        this.cursor.setPosition(this.xPosition + 11 + text.getWidth(), this.yPosition + 5);  
+                        this.cursor.setPosition(this.getPosition().x + 11 + text.getWidth(), this.getPosition().y + 5);  
                 }
 
                 if (!text.toString().equals(this.lastText))
@@ -171,8 +171,7 @@ public class TextBox extends WindowComponent {
     
     public void setPosition(float x, float y)
     {
-        this.xPosition = x;
-        this.yPosition = y;
+        super.setPosition(x,y);
         this.background.setPosition(x, y);
         if (focused)
             this.cursor.setPosition(x + 11 + text.getWidth(), y + 5);     
