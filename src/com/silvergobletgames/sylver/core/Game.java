@@ -31,11 +31,12 @@ public final class Game
     private ConcurrentHashMap<Class,Scene> scenes = new ConcurrentHashMap<>();
     //current game scene
     private Class currentScene;
-    //current scene lock
-    private ReentrantLock currentSceneLock = new ReentrantLock(true);
     
     //map of runnables that the game can also manage
-    private ConcurrentHashMap<String,Runnable> runnableMap = new ConcurrentHashMap();
+    private ConcurrentHashMap<String,Runnable> runnableMap = new ConcurrentHashMap<>();
+
+    //event queue for scene changes etc
+    private ConcurrentLinkedQueue<SimpleEntry<GameAction,Class>> gameActionQueue = new ConcurrentLinkedQueue<>()
        
     //asset manager
     private AssetManager assetManager;
@@ -45,8 +46,9 @@ public final class Game
     private AudioRenderer audioRenderer;
     //input handler
     private InputHandler inputHandler;
+
     //system exit actions
-    private ArrayList<SystemExitAction> systemExitActions = new ArrayList();
+    private ArrayList<SystemExitAction> systemExitActions = new ArrayList<>();
     
     //game running variable
     private boolean gameRunning = true;
@@ -57,6 +59,12 @@ public final class Game
     //update accumulator variables
     private final long timestep = 16_666_667; //60hz     
     private long accumulator = 0;  
+
+    //private enum used for
+    private enum GameAction
+    {
+    	CHANGESCENE,LOADSCENE,UNLOADSCENE;
+    }
         
    
 
