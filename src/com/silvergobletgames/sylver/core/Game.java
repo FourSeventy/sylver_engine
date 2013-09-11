@@ -36,7 +36,7 @@ public final class Game
     private ConcurrentHashMap<String,Runnable> runnableMap = new ConcurrentHashMap<>();
 
     //event queue for scene changes etc
-    private ConcurrentLinkedQueue<SimpleEntry<GameAction,Class>> gameActionQueue = new ConcurrentLinkedQueue<>()
+    private ConcurrentLinkedQueue<SceneAction> sceneActionQueue = new ConcurrentLinkedQueue<>()
        
     //asset manager
     private AssetManager assetManager;
@@ -60,11 +60,7 @@ public final class Game
     private final long timestep = 16_666_667; //60hz     
     private long accumulator = 0;  
 
-    //private enum used for
-    private enum GameAction
-    {
-    	CHANGESCENE,LOADSCENE,UNLOADSCENE;
-    }
+    
         
    
 
@@ -276,35 +272,7 @@ public final class Game
      */
     public void changeScene(final Class scene,final ArrayList args)
     {
-        Thread thread = new Thread()
-        {           
-            @Override
-            public void run()
-            {
-                //try to aquire lock on current scene
-                //block until we obtain lock
-                currentSceneLock.lock();  
-                try 
-                {
-                    //exit old scene
-                    if (currentScene != null)
-                        scenes.get(currentScene).sceneExited();
-
-                    //Enter the new scene
-                    currentScene = scene;        
-                    scenes.get(currentScene).sceneEntered(args);
-                    
-                    //reset accumulator
-                    accumulator = 0;
-                } 
-                finally 
-                {
-                   currentSceneLock.unlock();
-                }
-                       
-            }
-        };
-        thread.start();
+       SceneAction action = new SceneAction(ActionEnum.CHANGESCENE,scene);
     }  
     
     /**
@@ -313,10 +281,7 @@ public final class Game
      */
     public void loadScene(Scene scene) 
     {
-        if(scenes.containsKey(scene.getClass()))
-            throw new RuntimeException("Scene map already contains this scene");
-        else
-           this.scenes.put(scene.getClass(),scene);
+       
     }
     
     /**
@@ -344,11 +309,7 @@ public final class Game
                     currentSceneLock.lock();  
                     try 
                     {
-                       scenes.remove(scene);
-                       
-                       //double check 
-                       if(scene == currentScene)
-                           currentScene = null;
+                     
                     } 
                     finally 
                     {
@@ -441,6 +402,59 @@ public final class Game
     public void removeRunnable(String key)
     {
         this.runnableMap.remove(key);
+    }
+
+
+    private void processSceneActionQueue()
+    {
+    	for(SceneAction sceneAction: this.SceneActionQueue)
+    	{
+    		ActionEnum action = sceneAction.action;
+    		Class scene = sceneAction.scene;
+    		Arraylist args = sceneAction.args;
+
+
+    		switch(action)
+    		{
+    			case CHANGESCENE:
+    			{
+    				 //exit old scene
+                    if (currentScene != null)
+                        scenes.get(currentScene).sceneExited();
+
+                    //Enter the new scene
+                    currentScene = scene;        
+                    scenes.get(currentScene).sceneEntered(args);
+                    
+                    //reset accumulator
+                    accumulator = 0;
+
+    			}
+    			break;
+
+    			case LOADSCENE:
+    			{
+    				if(scenes.containsKey(scene.getClass()))
+			            throw new RuntimeException("Scene map already contains this scene");
+			        else
+			           this.scenes.put(scene.getClass(),scene);
+
+    			}
+    			break;
+
+    			case UNLOADSCENE:
+    			{    				
+                   //remove scene
+				   scenes.remove(scene);
+                   
+                   //set current scene to null if it is equal to the scene we unloaded
+                   if(scene == currentScene)
+                       currentScene = null;
+
+    			}
+    			break;
+    		}
+    	}
     }
     
     
@@ -596,6 +610,39 @@ public final class Game
         
         //action 
         public abstract void action();
+    }
+
+
+    /**
+    * Class used to hold game actions that will be performed by Game
+    *
+    */
+    private static class SceneAction
+    {
+    	protected ActionEnum action;
+    	protected Class scene;
+    	protected ArrayList args;
+
+
+    	//private enum used for
+	    private enum ActionEnum
+	    {
+	    	CHANGESCENE,LOADSCENE,UNLOADSCENE;
+	    }
+
+    	public SceneAction(ActionEnum action, Class scene)
+    	{
+    		this.action = action;
+    		this.scene = scene;
+
+    	}
+
+    	public SceneAction(ActionEnum action, Class scene, ArrayList args)
+    	{
+    		this(action,scene);
+    		args = args;
+    	}
+
     }
         
 }
