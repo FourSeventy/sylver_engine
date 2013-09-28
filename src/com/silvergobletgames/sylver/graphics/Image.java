@@ -78,9 +78,9 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
     //true if the image should be flipped vertically 
     private boolean flippedVertical = false;
     //the map of ImageEffects
-    private HashMap<String,ImageEffect> imageEffects = new HashMap();
+    private HashMap<String,ImageEffect> imageEffects = new HashMap<>();
     //the map of overlays
-    protected HashMap<String, Overlay> imageOverlays = new HashMap();
+    protected HashMap<String, Overlay> imageOverlays = new HashMap<>();
     //the list of things that are listening to this Image 
     private EventListenerList listenerList = new EventListenerList();
     //will this image cull alpha

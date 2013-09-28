@@ -197,7 +197,7 @@ public class ImageEffect extends Effect
                 float adjustmentValue = (float)interpolators.get("interpolator").interp(timeElapsed);
                 if(!owningImage.imageOverlays.values().isEmpty())
                 {
-                    Overlay lay = (Overlay)owningImage.imageOverlays.values().toArray()[0];
+                    Overlay lay = (Overlay)owningImage.getOverlay("interact");
                     lay.setRelativePosition(adjustmentValue, lay.getRelativePosition().y); 
                 }
                 break;
@@ -207,7 +207,7 @@ public class ImageEffect extends Effect
                 float adjustmentValue = (float)interpolators.get("interpolator").interp(timeElapsed);
                 if(!owningImage.imageOverlays.values().isEmpty())
                 {
-                    Overlay lay = (Overlay)owningImage.imageOverlays.values().toArray()[0];
+                    Overlay lay = (Overlay)owningImage.getOverlay("interact");
                     lay.setRelativePosition(lay.getRelativePosition().x, adjustmentValue); 
                 }
                 break;
