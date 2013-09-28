@@ -973,6 +973,8 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
         imageCopy.scale = scale;
         imageCopy.angle = angle;       
         imageCopy.currentAnimation = this.currentAnimation;
+        imageCopy.flippedHorizontal = this.flippedHorizontal;
+        imageCopy.flippedVertical = this.flippedVertical;
         
         //adds a copy of the renderEffects to the new image
         for (String key: this.imageEffects.keySet())       
