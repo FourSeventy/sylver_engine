@@ -66,12 +66,12 @@ public abstract class SceneObject
     
     public abstract void draw(GL2 gl);
     
-    public abstract void addedToScene()
+    public void addedToScene()
     {
 
     }
     
-    public abstract void removedFromScene()
+    public void removedFromScene()
     {
     	
     }
