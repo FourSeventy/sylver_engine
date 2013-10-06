@@ -66,7 +66,7 @@ public class OpenGLGameWindow implements GLEventListener
     //FBO and FBO Texture variables    
     public static int fbo;
     public static int backbufferTexture;
-    public static int[][] textureArray = new int[4][2]; // x = 0: 1x,    x = 1: 2x,    x = 2: 4x,    x = 3: 8x;
+    public static int[][] textureArray = new int[4][3]; // x = 0: 1x,    x = 1: 2x,    x = 2: 4x,    x = 3: 8x;
     
     //aspect ratio variables
     private final Point ASPECT_RATIO_16_9 = new Point(1600,900);
@@ -594,8 +594,8 @@ public class OpenGLGameWindow implements GLEventListener
         fbo = returnedFrameBuffers.get(0);
         
         //generates a bunch of textures that we will use
-        IntBuffer generatedTextures = GLBuffers.newDirectIntBuffer(9);
-        gl.glGenTextures(9, generatedTextures);
+        IntBuffer generatedTextures = GLBuffers.newDirectIntBuffer(10);
+        gl.glGenTextures(10, generatedTextures);
 
         //TEXTURE: BackBuffer
         backbufferTexture = generatedTextures.get(0);
@@ -620,6 +620,16 @@ public class OpenGLGameWindow implements GLEventListener
         //TEXTURE: Bloom - Level 1 - Horizontal
         textureArray[0][1] = generatedTextures.get(2);
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[0][1]);
+        gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w, h, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
+        gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
+        gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
+        gl.glTexParameteri(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_MAG_FILTER, GL3bc.GL_LINEAR);
+        gl.glTexParameteri(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_MIN_FILTER, GL3bc.GL_LINEAR);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
+        
+        //TEXTURE: Bloom - Level 1 - Vertical
+        textureArray[0][2] = generatedTextures.get(9);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[0][2]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w, h, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);

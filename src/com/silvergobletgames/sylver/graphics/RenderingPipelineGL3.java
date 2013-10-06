@@ -18,8 +18,7 @@ import java.util.Arrays;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2ES1;
+import javax.media.opengl.GL2ES3;
 import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUtessellator;
 import javax.media.opengl.glu.GLUtessellatorCallback;
@@ -311,6 +310,7 @@ public class RenderingPipelineGL3
         //texture nicknames
         int lightAccumulationTexture = OpenGLGameWindow.textureArray[0][0];
         int lightTexture = OpenGLGameWindow.textureArray[0][1];
+        int shadowTexture = OpenGLGameWindow.textureArray[0][2];
         
         
         //===========================================================
@@ -450,6 +450,11 @@ public class RenderingPipelineGL3
             //==============
             // Draw shadows
             //==============
+            
+            //bind the shadow accumulation texture and clear it with 0,0,0
+            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, shadowTexture, 0);
+            gl.glClearColor(100,100,100, 1f);
+            gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
 
             //get all casters that are in range of the light
             ArrayList<ShadowCaster> castersInRange = new ArrayList<>();
@@ -512,7 +517,7 @@ public class RenderingPipelineGL3
                         shadowVector2.normalise();
                         SylverVector2f shadowPoint2A = new SylverVector2f(corner2.getX(),corner2.getY());
                         SylverVector2f shadowPoint2B = new SylverVector2f(corner2.getX() + shadowVector2.x * light.getSize(), corner2.getY() + shadowVector2.y * light.getSize());
-                                                                    
+                                                               
                         // =========== draw the shadow =================
                         
                         //correct blending mode
@@ -541,8 +546,7 @@ public class RenderingPipelineGL3
                 //====================
                 // Fix Self Shadowing
                 //====================
-                if(light.getConicalRadius() >= 360)
-                {
+                
                 //build tesselator for polygon shape
                 GLUtessellator tesselator = GLUgl2.gluNewTess();
                 TessCallBack callback = new TessCallBack(gl,glu);
@@ -573,45 +577,51 @@ public class RenderingPipelineGL3
                 gl.glDisable(GL3bc.GL_BLEND);
             
                 gl.glDisable(GL3bc.GL_TEXTURE_2D);
-                gl.glColor4f(0, 0, 0, 1f);
+                gl.glColor4f(100, 100, 100, 1f);
                 gl.glCallList(list);
                 gl.glColor4f(1, 1, 1, 1f);
                 
-                //draw the light over the shape        
-                
-                //gets the light shader 
-                shaderProgram = Game.getInstance().getAssetManager().getShaderLoader().getShaderProgram("lightsourceverttess.glsl", "lightsourcefrag.glsl");
-
-                //starts running the shader program
-                gl.glUseProgram(shaderProgram.program());
-
-                //sets the light color for the glsl shader
-                lightColorUniformLocation = gl.glGetUniformLocation(shaderProgram.program(), "u_lightColor"); //gets handle to glsl variable
-                gl.glUniform4f(lightColorUniformLocation,light.getColor().r,light.getColor().g,light.getColor().b,light.getColor().a);  //passes color to that variable
-
-                //sets the light range for the glsl shader
-                lightRangeUniform = gl.glGetUniformLocation(shaderProgram.program(), "u_lightRange"); 
-                gl.glUniform1f(lightRangeUniform, light.getSize());
-
-                //sets the position of the light for the glsl shader
-                lightPositionUniform = gl.glGetUniformLocation(shaderProgram.program(), "u_lightPos"); 
-                gl.glUniform2f(lightPositionUniform, light.getPosition().x, light.getPosition().y );
-
-                //sets the intensity of the light for the glsl shader
-                lightIntensityUniform = gl.glGetUniformLocation(shaderProgram.program(), "u_lightIntensity");
-                gl.glUniform1f(lightIntensityUniform, light.getIntensity());
-            
-                //draw the polygon shape 
-                gl.glCallList(list);
-
-                //stops the shader program
-                gl.glUseProgram(0);            
+                      
                 //cleans up lists
                 gl.glDeleteLists(list, 1);
                 gl.glShadeModel(GL3bc.GL_SMOOTH);
 
-                }
+                
+                
+                
+                
             }
+            
+            
+                //====draw shadow texture to light texture====
+                //Switch to the accumulation texture
+                gl.glEnable(GL3bc.GL_TEXTURE_2D);
+                gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, lightTexture, 0);
+                gl.glMatrixMode(GL3bc.GL_MODELVIEW);
+                gl.glLoadIdentity();
+
+                //Blend mode
+                gl.glEnable(GL3bc.GL_BLEND);
+                gl.glBlendEquation(GL2ES3.GL_MIN);  
+                gl.glBlendFunc(GL3bc.GL_ONE, GL3bc.GL_ONE);  
+
+                //Bind the light texture
+                gl.glBindTexture(GL3bc.GL_TEXTURE_2D, shadowTexture);
+
+                //Draw the light texture to the accum. with additive blending
+                gl.glBegin(GL3bc.GL_QUADS);
+                    gl.glTexCoord2d(0.0, 0.0);
+                    gl.glVertex2f(0, 0);  //bottom left
+                    gl.glTexCoord2d(0.0, 1.0);
+                    gl.glVertex2f(0, viewport.getHeight());  //top left
+                    gl.glTexCoord2d(1.0, 1.0);
+                    gl.glVertex2f(viewport.getWidth(), viewport.getHeight()); //top right
+                    gl.glTexCoord2d(1.0, 0.0);
+                    gl.glVertex2f(viewport.getWidth(), 0);  //bottom right
+                gl.glEnd();
+
+                gl.glDisable(GL3bc.GL_BLEND);
+                gl.glDisable(GL3bc.GL_TEXTURE_2D);
 
             //Switch to the accumulation texture
             gl.glEnable(GL3bc.GL_TEXTURE_2D);
@@ -621,6 +631,7 @@ public class RenderingPipelineGL3
 
             //Blend mode
             gl.glEnable(GL3bc.GL_BLEND);
+            gl.glBlendEquation(GL3bc.GL_FUNC_ADD); 
             gl.glBlendFunc(GL3bc.GL_ONE, GL3bc.GL_ONE);
 
             //Bind the light texture
