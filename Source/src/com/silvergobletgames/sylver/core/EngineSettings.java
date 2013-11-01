@@ -38,6 +38,7 @@ public class EngineSettings
     public boolean bloom = true; 
     public boolean lighting = true;
     public boolean gaussianBlur = false;
+    public boolean profileRendering = false;
     public ParticleDensity particleDensity = ParticleDensity.HIGH;
     public Dimension screenResolution = new Dimension (0,0);
     
@@ -86,6 +87,7 @@ public class EngineSettings
             iniSaver.setProperty("particleDensity", this.particleDensity.name());
             iniSaver.setProperty("screenResolutionWidth",Integer.toString(this.screenResolution.getWidth()));
             iniSaver.setProperty("screenResolutionHeight",Integer.toString(this.screenResolution.getHeight()));
+            iniSaver.setProperty("profileRendering",Boolean.toString(this.profileRendering));
 
             //open output stream
             OutputStream out = Files.newOutputStream(Paths.get(filePath));
@@ -123,6 +125,7 @@ public class EngineSettings
             boolean lighting = Boolean.parseBoolean(iniLoader.getProperty("lighting"));
             boolean blur = Boolean.parseBoolean(iniLoader.getProperty("gaussianBlur"));
             boolean fullscreen = Boolean.parseBoolean(iniLoader.getProperty("fullScreen"));
+            boolean profileRendering = Boolean.parseBoolean(iniLoader.getProperty("profileRendering"));
             ParticleDensity density = ParticleDensity.valueOf(iniLoader.getProperty("particleDensity"));
             int xResolution = Integer.parseInt(iniLoader.getProperty("screenResolutionWidth"));
             int yResolution = Integer.parseInt(iniLoader.getProperty("screenResolutionHeight"));
@@ -137,6 +140,7 @@ public class EngineSettings
             settings.fullScreen = fullscreen;
             settings.particleDensity = density;
             settings.screenResolution = new Dimension(xResolution,yResolution);
+            settings.profileRendering = profileRendering;
             
             //return
             return settings;

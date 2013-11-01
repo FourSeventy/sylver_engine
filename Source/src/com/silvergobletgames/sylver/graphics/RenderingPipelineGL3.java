@@ -57,22 +57,29 @@ public class RenderingPipelineGL3
         //handle profiling queries
         //=========================
         
-        //get last frames query numbers
-        if(query != null)
+        boolean profileRendering = Game.getInstance().getConfiguration().getEngineSettings().profileRendering;
+        if( profileRendering== true)
         {
-            LongBuffer time = LongBuffer.allocate(1);
-            gl.glGetQueryObjectui64v(query.get(0), GL3bc.GL_QUERY_RESULT, time);
-            blurTime = time.get(0);
-            gl.glGetQueryObjectui64v(query.get(1), GL3bc.GL_QUERY_RESULT, time);
-            lightingTime = time.get(0);
-            gl.glGetQueryObjectui64v(query.get(2), GL3bc.GL_QUERY_RESULT, time);
-            bloomTime = time.get(0);
-        }
-        //allocate queries
-        if(query == null)
-        {
-           query = IntBuffer.allocate(4);
-           gl.glGenQueries(4, query);
+            //get last frames query numbers
+            if(query != null)
+            {
+                LongBuffer time = LongBuffer.allocate(1);
+                gl.glGetQueryObjectui64v(query.get(0), GL3bc.GL_QUERY_RESULT, time);
+                blurTime = time.get(0);
+                System.out.println("Blur Time: " + blurTime/1_000_000f + "ms");
+                gl.glGetQueryObjectui64v(query.get(1), GL3bc.GL_QUERY_RESULT, time);
+                lightingTime = time.get(0);
+                System.out.println("Lighting Time: " + lightingTime/1_000_000 + "ms");
+                gl.glGetQueryObjectui64v(query.get(2), GL3bc.GL_QUERY_RESULT, time);
+                bloomTime = time.get(0);
+                System.out.println("Bloom Time: " + bloomTime/1_000_000 + "ms");
+            }
+            //allocate queries
+            if(query == null)
+            {
+               query = IntBuffer.allocate(4);
+               gl.glGenQueries(4, query);
+            }
         }
         
         //====================
@@ -150,15 +157,21 @@ public class RenderingPipelineGL3
                 sceneObjectToRender.draw(gl);  
             }
 
-            //start profiling query
-          //   gl.glBeginQuery(GL3bc.GL_TIME_ELAPSED, query.get(0)); 
+            if(profileRendering == true)
+            {
+                //start profiling query
+                gl.glBeginQuery(GL3bc.GL_TIME_ELAPSED, query.get(0));
+            }
           
             //apply the layer blur
             if(Game.getInstance().getConfiguration().getEngineSettings().gaussianBlur && layer.blurFactor != 0 && !visibleSceneObjects.isEmpty())           
                 RenderingPipelineGL3.applyGaussianBlur(gl, viewport,layer.blurFactor,OpenGLGameWindow.textureArray[0][0]);
             
-             //end performance query
-           //  gl.glEndQuery(GL3bc.GL_TIME_ELAPSED); 
+            if(profileRendering == true)
+            {
+               //end performance query
+               gl.glEndQuery(GL3bc.GL_TIME_ELAPSED); 
+            }
         
         }
       
@@ -168,13 +181,19 @@ public class RenderingPipelineGL3
         //=================
 
         //start profiling query
-        gl.glBeginQuery(GL3bc.GL_TIME_ELAPSED, query.get(1));
+        if(profileRendering == true)
+        {
+            gl.glBeginQuery(GL3bc.GL_TIME_ELAPSED, query.get(1));
+        }
         
         if(Game.getInstance().getConfiguration().getEngineSettings().lighting)
             renderLighting(gl,sceneObjectManager,viewport,sceneEffectsManager);
         
          //end performance query
-         gl.glEndQuery(GL3bc.GL_TIME_ELAPSED); 
+        if(profileRendering == true)
+        {
+             gl.glEndQuery(GL3bc.GL_TIME_ELAPSED); 
+        }
 
 
         //==============
@@ -182,13 +201,19 @@ public class RenderingPipelineGL3
         //==============
 
         //start profiling query
-        gl.glBeginQuery(GL3bc.GL_TIME_ELAPSED, query.get(2));
+        if(profileRendering == true)
+        {
+            gl.glBeginQuery(GL3bc.GL_TIME_ELAPSED, query.get(2));
+        }
         
         if (Game.getInstance().getConfiguration().getEngineSettings().bloom)        
             renderBloom(gl,sceneObjectManager,viewport,sceneEffectsManager);
         
         //end performance query
-         gl.glEndQuery(GL3bc.GL_TIME_ELAPSED); 
+        if(profileRendering == true)
+        {
+            gl.glEndQuery(GL3bc.GL_TIME_ELAPSED); 
+        }
 
         //==============
         // Finish FBO
