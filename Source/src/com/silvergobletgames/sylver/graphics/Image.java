@@ -681,6 +681,16 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
     // Accessor Methods
     //=================
   
+    public int getAnimationIndex()
+    {
+        return this.index;
+    }
+    
+    public void setAnimationIndex(int index)
+    {
+        this.index = index;
+    }
+    
     /**
      * Returns the texture reference of this image, or null if it doesnt have one
      * @return 
