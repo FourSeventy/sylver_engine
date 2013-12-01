@@ -371,7 +371,9 @@ public class OpenGLGameWindow implements GLEventListener
              
         //re-initialize our fbo's
         if(drawable.getGL().getGLProfile().isGL3bc())
+        {
             initFrameBufferObjects((GL3bc)gl,this.viewportPixelSize.x,this.viewportPixelSize.y);  
+        }
         
         
          //re-initialize projection matrix
@@ -588,6 +590,36 @@ public class OpenGLGameWindow implements GLEventListener
      */
     private void initFrameBufferObjects(GL3bc gl, int w, int h) 
     {
+        //============================
+        // Delete Old FBO and Textures
+        //============================
+        
+        //delete framebuffer
+        IntBuffer fboBuffer = IntBuffer.allocate(1);
+        fboBuffer.put(fbo);
+        fboBuffer.rewind();
+        gl.glDeleteFramebuffers(1, fboBuffer);
+        
+        //delete textures
+        IntBuffer textureBuffer = IntBuffer.allocate(10);
+        textureBuffer.put(backbufferTexture);  
+        textureBuffer.put(textureArray[0][0]);
+        textureBuffer.put(textureArray[0][1]);
+        textureBuffer.put(textureArray[0][2]);
+        textureBuffer.put(textureArray[1][0]);
+        textureBuffer.put(textureArray[1][1]);
+        textureBuffer.put(textureArray[2][0]);
+        textureBuffer.put(textureArray[2][1]);
+        textureBuffer.put(textureArray[3][0]);
+        textureBuffer.put(textureArray[3][1]);       
+        textureBuffer.rewind();
+        gl.glDeleteTextures(10, textureBuffer);
+        
+        
+        //============================
+        // Create new FBO and Textures
+        //============================
+        
         //generates the fbo
         IntBuffer returnedFrameBuffers = GLBuffers.newDirectIntBuffer(1);
         gl.glGenFramebuffers(1, returnedFrameBuffers);
