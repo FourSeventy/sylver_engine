@@ -115,12 +115,14 @@ public final class Game
         {
             this.graphicsWindow = new OpenGLGameWindow();
             this.graphicsWindow.postInit();
+            
+         
         }
         catch(Exception e)
         {
             //log error to console
             Logger logger =Logger.getLogger(Game.class.getName());
-            logger.log(Level.FINE, "Error Creating Graphics Window: " + e.getMessage(),e);
+            logger.log(Level.SEVERE, "Error Creating Graphics Window: " + e.getMessage(),e);
             
             //exit
             this.uncaughtExceptionHandlingActions(e);
