@@ -9,15 +9,6 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.media.nativewindow.util.Dimension;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * This is a class that contains all of the settings for the engines graphics and audio pipelines. 
@@ -41,6 +32,7 @@ public class EngineSettings
     public boolean profileRendering = false;
     public ParticleDensity particleDensity = ParticleDensity.HIGH;
     public Dimension screenResolution = new Dimension (0,0);
+    public Level logLevel = Level.WARNING;
     
     public static enum ParticleDensity{
         //-WARNING
@@ -88,6 +80,7 @@ public class EngineSettings
             iniSaver.setProperty("screenResolutionWidth",Integer.toString(this.screenResolution.getWidth()));
             iniSaver.setProperty("screenResolutionHeight",Integer.toString(this.screenResolution.getHeight()));
             iniSaver.setProperty("profileRendering",Boolean.toString(this.profileRendering));
+            iniSaver.setProperty("logLevel",this.logLevel.getName());
 
             //open output stream
             OutputStream out = Files.newOutputStream(Paths.get(filePath));
@@ -97,8 +90,8 @@ public class EngineSettings
         {
              //log error to console
             Logger logger =Logger.getLogger(EngineSettings.class.getName());
-            logger.log(Level.SEVERE, "Could not dump engineSettings.ini to file: " + e.toString());
-            logger.addHandler(new ConsoleHandler());     
+            logger.log(Level.SEVERE, "Could not dump engineSettings.ini to file: " + e.getMessage(),e);
+ 
         }
     }
     
@@ -129,6 +122,7 @@ public class EngineSettings
             ParticleDensity density = ParticleDensity.valueOf(iniLoader.getProperty("particleDensity"));
             int xResolution = Integer.parseInt(iniLoader.getProperty("screenResolutionWidth"));
             int yResolution = Integer.parseInt(iniLoader.getProperty("screenResolutionHeight"));
+            Level logLevel = Level.parse(iniLoader.getProperty("logLevel"));
             
             //assign settings
             EngineSettings settings = new EngineSettings();
@@ -141,6 +135,7 @@ public class EngineSettings
             settings.particleDensity = density;
             settings.screenResolution = new Dimension(xResolution,yResolution);
             settings.profileRendering = profileRendering;
+            settings.logLevel = logLevel;
             
             //return
             return settings;
@@ -149,8 +144,8 @@ public class EngineSettings
         {
             //log error to console
             Logger logger =Logger.getLogger(EngineSettings.class.getName());
-            logger.log(Level.SEVERE, "Could not open engineSettings.ini file: " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "Could not open engineSettings.ini file: " + e.getMessage(),e);
+        
             
             //return a default settings object
             return new EngineSettings();

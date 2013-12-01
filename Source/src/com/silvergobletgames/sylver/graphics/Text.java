@@ -124,7 +124,7 @@ public class Text extends NetworkedSceneObject implements Anchorable
              //log error to console
             Logger logger =Logger.getLogger(Text.class.getName());
             logger.log(Level.SEVERE, "Text Renderer " + textType.toString() + ", is not registered");
-            logger.addHandler(new ConsoleHandler()); 
+        
         
             tr = OpenGLGameWindow.textRenderers.get(CoreTextType.DEFAULT);
         }

@@ -1126,8 +1126,8 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
             {
                 //log error to console
                 Logger logger =Logger.getLogger(Image.class.getName());
-                logger.log(Level.SEVERE, "AnimationPack Instantiation Exception: " + e.toString());
-                logger.addHandler(new ConsoleHandler()); 
+                logger.log(Level.SEVERE, "AnimationPack Instantiation Exception: " + e.getMessage(),e);
+    
                 
                 //use default animation pack
                 animationPack = new DefaultAnimationPack();
@@ -1583,8 +1583,8 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
             {
                 //log error to console
                 Logger logger =Logger.getLogger(Image.class.getName());
-                logger.log(Level.SEVERE, "AnimationPack Instantiation Exception: " + e.toString());
-                logger.addHandler(new ConsoleHandler()); 
+                logger.log(Level.SEVERE, "AnimationPack Instantiation Exception: " + e.getMessage(),e);
+        
                 
                 animationPack = new DefaultAnimationPack();
             }

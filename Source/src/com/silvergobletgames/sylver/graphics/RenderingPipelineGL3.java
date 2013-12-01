@@ -1434,7 +1434,6 @@ public class RenderingPipelineGL3
       //log error to console
         Logger logger =Logger.getLogger(RenderingPipelineGL3.class.getName());
         logger.log(Level.SEVERE, "Tessellation Error: " + estring);
-        logger.addHandler(new ConsoleHandler()); 
             
         throw new RuntimeException("Tesselation Error");
     }

@@ -59,8 +59,7 @@ public class AudioRenderer {
         {
             //log error to console
             Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-            logger.log(Level.SEVERE, "Sound System Config Problem: " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "Sound System Config Problem: " + e.getMessage(),e); 
         }
         Class libraryType;
         boolean jSCompatible = true; // SoundSystem.libraryCompatible( LibraryJavaSound.class );// TODO - library fix
@@ -81,9 +80,8 @@ public class AudioRenderer {
         {
             //log error to console
             Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-            logger.log(Level.SEVERE, "Sound System Initialization Error: " + sse.toString());
-            logger.addHandler(new ConsoleHandler()); 
-            
+            logger.log(Level.SEVERE, "Sound System Initialization Error: " + sse.getMessage(),sse);
+                     
             return;
         }
         
@@ -171,8 +169,7 @@ public class AudioRenderer {
                         catch (MalformedURLException ex)
                         {
                             Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                            logger.log(Level.SEVERE, null, ex);
-                            logger.addHandler(new ConsoleHandler()); 
+                            logger.log(Level.SEVERE, "MalformedURL while trying to load sound: " +ex.getMessage(), ex);
                         }
                     
                     return FileVisitResult.CONTINUE;
@@ -231,8 +228,8 @@ public class AudioRenderer {
                     {
                         //log error to console
                         Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.toString());
-                        logger.addHandler(new ConsoleHandler()); 
+                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.getMessage(),ex);
+                   
                     }
                    break;
                 }
@@ -259,8 +256,8 @@ public class AudioRenderer {
                     {
                         //log error to console
                         Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.toString());
-                        logger.addHandler(new ConsoleHandler()); 
+                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.getMessage(),ex);
+                   
                     }
                     
                     break;
@@ -281,8 +278,7 @@ public class AudioRenderer {
                     {
                         //log error to console
                         Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.toString());
-                        logger.addHandler(new ConsoleHandler()); 
+                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.getMessage(),ex);
                     }
                     
                     break;
@@ -302,8 +298,7 @@ public class AudioRenderer {
                     {
                         //log error to console
                         Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.toString());
-                        logger.addHandler(new ConsoleHandler()); 
+                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.getMessage(),ex);
                     }
                     
                     break;

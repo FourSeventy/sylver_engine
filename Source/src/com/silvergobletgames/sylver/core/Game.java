@@ -10,8 +10,12 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JWindow;
@@ -91,6 +95,15 @@ public final class Game
             this.gameConfiguration = new GameConfiguration(URI.create("file:/C:"),URI.create("file:/C:"), new EngineSettings());           
         }
         
+        //initialize logging
+        Level logLevel = this.gameConfiguration.getEngineSettings().logLevel;
+        LogManager.getLogManager().reset();
+        Logger global = Logger.getLogger("");
+        global.setLevel(logLevel);             
+        ConsoleHandler h = new ConsoleHandler(); 
+        h.setLevel(logLevel);
+        global.addHandler(h); 
+        
         //create input handler
         this.inputHandler = new InputHandler();
         
@@ -102,13 +115,14 @@ public final class Game
         {
             this.graphicsWindow = new OpenGLGameWindow();
             this.graphicsWindow.postInit();
+            
+         
         }
         catch(Exception e)
         {
             //log error to console
             Logger logger =Logger.getLogger(Game.class.getName());
-            logger.log(Level.SEVERE, "Error Creating Graphics Window: " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "Error Creating Graphics Window: " + e.getMessage(),e);
             
             //exit
             this.uncaughtExceptionHandlingActions(e);
@@ -149,6 +163,7 @@ public final class Game
      */
     public void gameLoop()
     {
+        
         try
         {
             //check to see if createGame() was called first
@@ -236,8 +251,8 @@ public final class Game
                     {
                         //log error to console
                         Logger logger =Logger.getLogger(Game.class.getName());
-                        logger.log(Level.SEVERE, "Error Sleeping: " + e.toString());
-                        logger.addHandler(new ConsoleHandler()); 
+                        logger.log(Level.SEVERE, "Error Sleeping: " + e.getMessage(),e);
+                      
                     }   
                     endOfLoopTime = System.nanoTime();
                 }                       

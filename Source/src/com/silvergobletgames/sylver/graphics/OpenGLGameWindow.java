@@ -7,6 +7,7 @@ import com.jogamp.newt.event.WindowUpdateEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.newt.util.MonitorModeUtil;
 import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.AnimatorBase;
 import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.jogamp.opengl.util.texture.Texture;
@@ -104,23 +105,21 @@ public class OpenGLGameWindow implements GLEventListener
         //build and initialize our window
         glWindow = GLWindow.create(glCapabilities);
         glWindow.setTitle("Lead Crystal");
-        glWindow.setAnimator(new Animator());
         glWindow.addGLEventListener(this);
         glWindow.setAutoSwapBufferMode(true);  
         glWindow.setAlwaysOnTop(false);
         glWindow.setUpdateFPSFrames(10, null);
-        glWindow.setPosition(20 , 30);
-                  
-        //set visible and set the screen size and fullscreen 
+        glWindow.setPosition(10 , 30);
+        
+         //set visible and set the screen size and fullscreen 
         glWindow.setVisible(true);  
         
         //set up loading buffer
-        GLDrawableFactory factor = GLDrawableFactory.getFactory(glProfile);
+        GLDrawableFactory factor = GLDrawableFactory.getFactory(glWindow.getGLProfile());
         GLCapabilitiesChooser glcc = new DefaultGLCapabilitiesChooser(); 
-        GLPbuffer buffer =factor.createGLPbuffer(factor.getDefaultDevice(), glCapabilities, glcc, 800, 600, glWindow.getContext());
+        GLPbuffer buffer =factor.createGLPbuffer(factor.getDefaultDevice(), glWindow.getChosenGLCapabilities(), glcc, 800, 600, glWindow.getContext());
         buffer.createContext(glWindow.getContext());
         loadingBuffer = buffer;
-            
           
     }
     
@@ -129,8 +128,8 @@ public class OpenGLGameWindow implements GLEventListener
          //if we dont have a screen resolution in our user settings, set a default one
         if(Game.getInstance().getConfiguration().getEngineSettings().screenResolution.getWidth() == 0)
         {
-            //get our screen mode, and set the screen size 
             Screen screen = glWindow.getScreen();
+            //get our screen mode, and set the screen size 
             MonitorMode currentScreenMode = glWindow.getMainMonitor().getOriginalMode();
             Game.getInstance().getConfiguration().getEngineSettings().screenResolution.setWidth(currentScreenMode.getSurfaceSize().getResolution().getWidth());
             Game.getInstance().getConfiguration().getEngineSettings().screenResolution.setHeight(currentScreenMode.getSurfaceSize().getResolution().getHeight()); 
@@ -151,8 +150,7 @@ public class OpenGLGameWindow implements GLEventListener
 
             @Override
             public void windowResized(com.jogamp.newt.event.WindowEvent we)
-            {
-                
+            {      
             }
 
             @Override
@@ -193,8 +191,7 @@ public class OpenGLGameWindow implements GLEventListener
         
         //set up close operation ([x] button)
         this.glWindow.setDefaultCloseOperation(WindowClosingProtocol.WindowClosingMode.DO_NOTHING_ON_CLOSE);
-   
-        
+       
         //load system textures
         URL textureURL = OpenGLGameWindow.class.getClassLoader().getResource("com/silvergobletgames/sylver/systemtextures");
         try
@@ -205,15 +202,71 @@ public class OpenGLGameWindow implements GLEventListener
         {
             //log error to console
             Logger errorLogger =Logger.getLogger(OpenGLGameWindow.class.getName());
-            errorLogger.log(Level.SEVERE, "Error Loading System Texture: " + ex.toString());
-            errorLogger.addHandler(new ConsoleHandler()); 
+            errorLogger.log(Level.SEVERE, "Error Loading System Texture: " + ex.getMessage(), ex);
+       
         }
         
         //load system shaders
         this.loadSystemShaders();
                              
         //init text renderers
-        registerDefaultTextRenderers();     
+        registerDefaultTextRenderers(); 
+        
+                //attach fakey animator to ignore repaint events
+       glWindow.setAnimator(new AnimatorBase(){
+           {
+               
+           }
+           @Override
+           public boolean isStarted()
+           {
+               return true;
+           }
+           
+           @Override
+           public boolean isAnimating()
+           {
+               return true;
+           }
+           
+           @Override
+           public boolean start()
+           {
+               return true;
+           }
+
+            @Override
+            protected String getBaseName(String string)
+            {
+              return "animator";
+            }
+
+            @Override
+            public boolean isPaused()
+            {
+              return false;
+            }
+
+            @Override
+            public boolean stop()
+            {
+              return true;
+            }
+
+            @Override
+            public boolean pause()
+            {
+                return true;
+            }
+
+            @Override
+            public boolean resume()
+            {
+                return true;
+            }
+       });      
+       glWindow.getAnimator().start();
+               
 
     }
     
@@ -263,7 +316,10 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
                  
         // Enable VSync
-        gl.setSwapInterval(Game.getInstance().getConfiguration().getEngineSettings().vSync? 1: 0);       
+        gl.setSwapInterval(Game.getInstance().getConfiguration().getEngineSettings().vSync? 1: 0); 
+        
+        gl.glClearColor(0, 0, 0, 1);
+        gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
         
         //set display gamma
         //com.jogamp.opengl.util.Gamma.setDisplayGamma(gl, 3, 0, 1);
@@ -295,6 +351,11 @@ public class OpenGLGameWindow implements GLEventListener
         if (sceneToRender != null) 
         {
             sceneToRender.render(gl);                
+        }
+        else
+        {
+            gl.glClearColor(0, 0, 0, 1);
+            gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
         }
 
         //reconfigures matrices for cursor draw
@@ -371,7 +432,9 @@ public class OpenGLGameWindow implements GLEventListener
              
         //re-initialize our fbo's
         if(drawable.getGL().getGLProfile().isGL3bc())
+        {
             initFrameBufferObjects((GL3bc)gl,this.viewportPixelSize.x,this.viewportPixelSize.y);  
+        }
         
         
          //re-initialize projection matrix
@@ -588,6 +651,36 @@ public class OpenGLGameWindow implements GLEventListener
      */
     private void initFrameBufferObjects(GL3bc gl, int w, int h) 
     {
+        //============================
+        // Delete Old FBO and Textures
+        //============================
+        
+        //delete framebuffer
+        IntBuffer fboBuffer = IntBuffer.allocate(1);
+        fboBuffer.put(fbo);
+        fboBuffer.rewind();
+        gl.glDeleteFramebuffers(1, fboBuffer);
+        
+        //delete textures
+        IntBuffer textureBuffer = IntBuffer.allocate(10);
+        textureBuffer.put(backbufferTexture);  
+        textureBuffer.put(textureArray[0][0]);
+        textureBuffer.put(textureArray[0][1]);
+        textureBuffer.put(textureArray[0][2]);
+        textureBuffer.put(textureArray[1][0]);
+        textureBuffer.put(textureArray[1][1]);
+        textureBuffer.put(textureArray[2][0]);
+        textureBuffer.put(textureArray[2][1]);
+        textureBuffer.put(textureArray[3][0]);
+        textureBuffer.put(textureArray[3][1]);       
+        textureBuffer.rewind();
+        gl.glDeleteTextures(10, textureBuffer);
+        
+        
+        //============================
+        // Create new FBO and Textures
+        //============================
+        
         //generates the fbo
         IntBuffer returnedFrameBuffers = GLBuffers.newDirectIntBuffer(1);
         gl.glGenFramebuffers(1, returnedFrameBuffers);

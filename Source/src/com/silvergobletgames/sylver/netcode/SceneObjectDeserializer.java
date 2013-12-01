@@ -48,8 +48,8 @@ public abstract class SceneObjectDeserializer
         {
             //log error to console
             Logger logger =Logger.getLogger(SceneObjectDeserializer.class.getName());
-            logger.log(Level.SEVERE, "Build Scene Object From Render Data Fail: " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "Build Scene Object From Render Data Fail: " + e.getMessage(),e);
+     
                 
             return new Image("textureMissing.jpg");
         }
@@ -92,8 +92,8 @@ public abstract class SceneObjectDeserializer
         {
             //log error to console
             Logger logger =Logger.getLogger(SceneObjectDeserializer.class.getName());
-            logger.log(Level.SEVERE, "Build Scene Object From Save Data Fail: " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "Build Scene Object From Save Data Fail: " + e.getMessage(),e);
+          
             
             throw new Exception("Scene Object Construction Failed");
         }
