@@ -62,7 +62,7 @@ public class ShaderLoader {
              //log error to console
             Logger logger =Logger.getLogger(ShaderLoader.class.getName());
             logger.log(Level.SEVERE, "Failed to get shader: " +vertex +","+fragment);
-            logger.addHandler(new ConsoleHandler()); 
+        
             
    
            throw new RuntimeException("Failed to get shader: " +vertex +","+fragment);
@@ -147,8 +147,8 @@ public class ShaderLoader {
         {
             //log error to console
             Logger logger =Logger.getLogger(ShaderLoader.class.getName());
-            logger.log(Level.SEVERE, "Error Loading Shader From Disk: " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "Error Loading Shader From Disk: " + e.getMessage(),e);
+        
         }
         
         String[] strings =sourceCode.toArray(new String[sourceCode.size()]);

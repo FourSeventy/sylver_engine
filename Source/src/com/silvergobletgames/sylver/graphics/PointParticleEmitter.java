@@ -121,8 +121,8 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         {
             //log error to console
             Logger logger =Logger.getLogger(AbstractParticleEmitter.class.getName());
-            logger.log(Level.SEVERE, "ParticleEmitter Instantiation Exception: " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "ParticleEmitter Instantiation Exception: " + e.getMessage(),e);
+          
         }
         
         returnEmitter.setAngle(this.getAngle());
@@ -214,8 +214,8 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         {
             //log error to console
             Logger logger =Logger.getLogger(PointParticleEmitter.class.getName());
-            logger.log(Level.SEVERE, "PointParticleEmitter Instantiation Exception: " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "PointParticleEmitter Instantiation Exception: " + e.getMessage(),e);
+         
         }
        
         emitter.setPosition((float) renderData.data.get(0), (float)renderData.data.get(1));
@@ -371,7 +371,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
             //log error to console
             Logger logger =Logger.getLogger(PointParticleEmitter.class.getName());
             logger.log(Level.SEVERE, "Emitter Class Not Found: " + (String)saved.dataMap.get("factoryClass"));
-            logger.addHandler(new ConsoleHandler()); 
+         
             
             emitterClass = SparkEmitter.class;
         }
@@ -397,8 +397,8 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         {
             //log error to console
             Logger logger =Logger.getLogger(PointParticleEmitter.class.getName());
-            logger.log(Level.SEVERE, "PointParticleEmitter Instantiation Exception: " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "PointParticleEmitter Instantiation Exception: " + e.getMessage(),e);
+        
         }
 
         emitter.setPosition(x, y);

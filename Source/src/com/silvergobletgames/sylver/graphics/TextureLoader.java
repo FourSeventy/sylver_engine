@@ -68,7 +68,7 @@ public class TextureLoader
              //log error to console
             Logger logger =Logger.getLogger(TextureLoader.class.getName());
             logger.log(Level.SEVERE, "Error getting texture: " + identifier + ":  " + Thread.currentThread().toString());
-            logger.addHandler(new ConsoleHandler()); 
+           
                 
             return loadedTextures.get("texturemissing.jpg");
         }
@@ -127,8 +127,8 @@ public class TextureLoader
         { 
             //log error to console
             Logger logger =Logger.getLogger(TextureLoader.class.getName());
-            logger.log(Level.SEVERE, "Error Loading Texture: " + resourceURI.toString() + " : " + e.toString());
-            logger.addHandler(new ConsoleHandler()); 
+            logger.log(Level.SEVERE, "Error Loading Texture: " + resourceURI.toString() + " : " + e.getMessage(),e);
+        
         }
         finally
         {
@@ -176,17 +176,19 @@ public class TextureLoader
                         //load the texture
                         try
                         {
+                           
                             String[] parts = jarEntry.getName().split("/");  
                             String filename = parts[parts.length - 1].toLowerCase();
                     
                             loadTexture(this.getClass().getClassLoader().getResource(jarEntry.getName()).toURI(),filename);   
+                         
                         }
                         catch(URISyntaxException e)
                         {
                             //log error to console
                             Logger logger =Logger.getLogger(TextureLoader.class.getName());
-                            logger.log(Level.SEVERE, "Error Loading All Textures: " + e.toString());
-                            logger.addHandler(new ConsoleHandler()); 
+                            logger.log(Level.SEVERE, "Error Loading All Textures: " + e.getMessage(),e);
+                       
                         }
                     }
                 }
