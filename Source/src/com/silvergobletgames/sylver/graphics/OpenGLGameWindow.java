@@ -7,6 +7,7 @@ import com.jogamp.newt.event.WindowUpdateEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.newt.util.MonitorModeUtil;
 import com.jogamp.opengl.util.Animator;
+import com.jogamp.opengl.util.AnimatorBase;
 import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.jogamp.opengl.util.texture.Texture;
@@ -104,13 +105,67 @@ public class OpenGLGameWindow implements GLEventListener
         //build and initialize our window
         glWindow = GLWindow.create(glCapabilities);
         glWindow.setTitle("Lead Crystal");
-        glWindow.setAnimator(new Animator());
         glWindow.addGLEventListener(this);
         glWindow.setAutoSwapBufferMode(true);  
         glWindow.setAlwaysOnTop(false);
         glWindow.setUpdateFPSFrames(10, null);
         glWindow.setPosition(20 , 30);
-                  
+        
+        //attach fakey animator to ignore repaint events
+       glWindow.setAnimator(new AnimatorBase(){
+           {
+               
+           }
+           @Override
+           public boolean isStarted()
+           {
+               return true;
+           }
+           
+           @Override
+           public boolean isAnimating()
+           {
+               return true;
+           }
+           
+           @Override
+           public boolean start()
+           {
+               return true;
+           }
+
+            @Override
+            protected String getBaseName(String string)
+            {
+              return "animator";
+            }
+
+            @Override
+            public boolean isPaused()
+            {
+              return false;
+            }
+
+            @Override
+            public boolean stop()
+            {
+              return true;
+            }
+
+            @Override
+            public boolean pause()
+            {
+                return true;
+            }
+
+            @Override
+            public boolean resume()
+            {
+                return true;
+            }
+       });      
+       glWindow.getAnimator().start();
+                
         //set visible and set the screen size and fullscreen 
         glWindow.setVisible(true);  
         
@@ -151,8 +206,7 @@ public class OpenGLGameWindow implements GLEventListener
 
             @Override
             public void windowResized(com.jogamp.newt.event.WindowEvent we)
-            {
-                
+            {      
             }
 
             @Override
