@@ -670,7 +670,7 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
                 {
                     e = currentAnimation;
                 }
-                ((AnimationListener) listeners[i + 1]).finishedAnimating(e);
+                ((AnimationListener) listeners[i + 1]).finishedAnimating(this,e);
             }
         }
     }
