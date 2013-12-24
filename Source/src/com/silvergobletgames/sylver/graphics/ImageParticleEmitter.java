@@ -94,7 +94,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
                 float x = particle.position.x;
                 float y = particle.position.y;
 
-                if (this.isRelative())
+                if (this.isRelativePositioning())
                 {
                     x += this.getPosition().x - particle.originalEmitterPosition.x;
                     y += this.getPosition().y - particle.originalEmitterPosition.y;
@@ -154,6 +154,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         returnEmitter.setAngle(this.getAngle());
         returnEmitter.setDuration(this.getDuration());
         returnEmitter.setImage(this.image.copy());
+        returnEmitter.setRelativePositioning(this.isRelativePositioning()); 
         returnEmitter.setParticlesPerFrame(this.getParticlesPerFrame());
         if(this.isStopped())
             returnEmitter.stopEmittingThenRemove();
@@ -179,6 +180,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         renderData.data.add(5,this.getParticlesPerFrame());
         renderData.data.add(6,this.image.getTextureReference());
         renderData.data.add(7,this.getAngle());
+        renderData.data.add(8,this.isRelativePositioning());
         
         return renderData;
     }
@@ -209,6 +211,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         }
         emitter.setID(renderData.getID());
         emitter.setAngle((float)renderData.data.get(7));
+        emitter.setRelativePositioning((boolean)renderData.data.get(8)); 
         
         return emitter;
     }
@@ -248,7 +251,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         ArrayList rawData = new ArrayList();
         rawData.addAll(Arrays.asList(renderDataChanges.data));       
         ArrayList changeData = new ArrayList();
-        for(int i = 0; i <8; i ++)
+        for(int i = 0; i <9; i ++)
         {
             // The bit was set
             if ((fieldMap & (1L << i)) != 0)
@@ -291,6 +294,11 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         if(changeData.get(7) != null)
         {
             this.setAngle((float)changeData.get(7));
+        }
+        
+        if(changeData.get(8) != null)
+        {
+            this.setRelativePositioning((boolean)changeData.get(8));
         }
     }
     

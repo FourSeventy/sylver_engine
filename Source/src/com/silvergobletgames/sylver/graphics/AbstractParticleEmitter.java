@@ -230,7 +230,7 @@ public abstract class AbstractParticleEmitter extends NetworkedSceneObject imple
      * moves while particles are being emitted.
      * @param value 
      */
-    public void useRelativePositioning(boolean value)
+    public void setRelativePositioning(boolean value)
     {
         this.useRelativeParticles = value;
     }
@@ -239,7 +239,7 @@ public abstract class AbstractParticleEmitter extends NetworkedSceneObject imple
     *
     *@return if this emitter uses relative positioning or not.
     */
-    public boolean isRelative()
+    public boolean isRelativePositioning()
     {
     	return this.useRelativeParticles;
     }
