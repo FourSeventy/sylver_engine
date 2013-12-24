@@ -84,7 +84,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
             float x = p.position.x;
             float y = p.position.y;
 
-            if (this.isRelative())
+            if (this.isRelativePositioning())
             {
                 x += this.getPosition().x - p.originalEmitterPosition.x;
                 y += this.getPosition().y - p.originalEmitterPosition.y;
@@ -130,6 +130,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         returnEmitter.setColor(this.getColor());
         returnEmitter.setSize(this.getSize());
         returnEmitter.setParticlesPerFrame(this.getParticlesPerFrame());
+        returnEmitter.setRelativePositioning(this.isRelativePositioning()); 
         if(this.isStopped())
             returnEmitter.stopEmittingThenRemove();
         
@@ -197,6 +198,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         renderData.data.add(6,this.particleColor);
         renderData.data.add(7,this.getAngle());
         renderData.data.add(8,this.particleSize);
+        renderData.data.add(9,this.isRelativePositioning());
         
         return renderData;
     }
@@ -225,6 +227,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         emitter.setID(renderData.getID());
         emitter.setAngle((float)renderData.data.get(7));
         emitter.setSize((int)renderData.data.get(8));
+        emitter.setRelativePositioning((boolean)renderData.data.get(9));  
         
         return emitter;
     }
@@ -264,7 +267,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         ArrayList rawData = new ArrayList();
         rawData.addAll(Arrays.asList(renderDataChanges.data));       
         ArrayList changeData = new ArrayList();
-        for(int i = 0; i <8; i ++)
+        for(int i = 0; i <10; i ++)
         {
             // The bit was set
             if ((fieldMap & (1L << i)) != 0)
@@ -308,6 +311,11 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         {
             this.setAngle((float)changeData.get(7));
         }
+        
+        if(changeData.get(9) != null)
+        {
+            this.setRelativePositioning((boolean)changeData.get(9));
+        }
     }
     
     public void interpolate(long currentTime)
@@ -348,6 +356,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         saved.dataMap.put("angle",this.getAngle());
         saved.dataMap.put("color",this.getColor());
         saved.dataMap.put("size",this.getSize());
+        saved.dataMap.put("relative",this.isRelativePositioning());
         
         return saved;
     }
@@ -386,6 +395,8 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         float angle = 90;
         if(saved.dataMap.containsKey("angle")) //TODO get rid of
            angle= (float)saved.dataMap.get("angle");
+        
+        boolean relative = (boolean)saved.dataMap.get("relative"); 
 
         //instantiate the factory
         PointParticleEmitter emitter = null;
@@ -407,6 +418,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         emitter.setAngle(angle);
         emitter.setColor(color);
         emitter.setSize(size);
+        emitter.setRelativePositioning(relative);
         
         return (SceneObject)emitter;
     }
