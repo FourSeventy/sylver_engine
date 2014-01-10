@@ -42,7 +42,8 @@ public class Label extends WindowComponent {
     // SceneObject Methods
     //=====================
     @Override
-    public void draw(GL2 gl) {
+    public void draw(GL2 gl)
+    {
         if(!hidden)
         {
           text.draw(gl);
@@ -50,7 +51,9 @@ public class Label extends WindowComponent {
     }
 
     @Override
-    public void update() {
+    public void update() 
+    {
+        this.text.update();
     }
     
     @Override

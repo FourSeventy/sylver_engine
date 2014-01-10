@@ -168,7 +168,8 @@ public class MultiTextEffect extends TextEffect {
                 float r = (float)interpolators.get("r").interp(currentTimeElapsed);
                 float g = (float)interpolators.get("g").interp(currentTimeElapsed);
                 float b = (float)interpolators.get("b").interp(currentTimeElapsed);      
-                owningText.setColor(new Color(r,g,b));              
+                float a = (float)interpolators.get("a").interp(currentTimeElapsed); 
+                owningText.setColor(new Color(r,g,b,a));                  
                 break;
             } 
             case DURATION: 
