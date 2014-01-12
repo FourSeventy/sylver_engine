@@ -66,13 +66,15 @@ public class RenderingPipelineGL3
                 LongBuffer time = LongBuffer.allocate(1);
                 gl.glGetQueryObjectui64v(query.get(0), GL3bc.GL_QUERY_RESULT, time);
                 blurTime = time.get(0);
-                System.out.println("Blur Time: " + blurTime/1_000_000f + "ms");
                 gl.glGetQueryObjectui64v(query.get(1), GL3bc.GL_QUERY_RESULT, time);
                 lightingTime = time.get(0);
-                System.out.println("Lighting Time: " + lightingTime/1_000_000 + "ms");
                 gl.glGetQueryObjectui64v(query.get(2), GL3bc.GL_QUERY_RESULT, time);
                 bloomTime = time.get(0);
-                System.out.println("Bloom Time: " + bloomTime/1_000_000 + "ms");
+                
+                //log times
+                System.err.println( "Blur Time: " + blurTime/1_000_000f + "ms");
+                System.err.println( "Lighting Time: " + lightingTime/1_000_000 + "ms");
+                System.err.println( "Bloom Time: " + bloomTime/1_000_000 + "ms");
             }
             //allocate queries
             if(query == null)

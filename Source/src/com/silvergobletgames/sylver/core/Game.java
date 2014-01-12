@@ -175,8 +175,7 @@ public final class Game
             {                
 
                 //find out how long the last frame took
-                lastFrameTime = endOfLoopTime - startOfLoopTime;
-                //System.out.println("Game Loop: " +(float)(System.nanoTime() - startOfLoopTime)/1_000_000f);
+                lastFrameTime = endOfLoopTime - startOfLoopTime;              
 
                 //save the start of the loop time
                 startOfLoopTime = System.nanoTime();
@@ -233,11 +232,17 @@ public final class Game
 
                 //note the current time
                 endOfLoopTime = System.nanoTime();
+                
+                if(Game.getInstance().getConfiguration().getEngineSettings().profileGameLoop)
+                {
+                    //log times
+                    System.err.println("Game Loop: " +(float)(endOfLoopTime - startOfLoopTime)/1_000_000f + "ms");
+                }
 
 
                 //flushing output streams for debugging  
-                System.out.flush();
-                System.err.flush();
+//                System.out.flush();
+//                System.err.flush();
                 
 
                 //sleep to set frame rate   

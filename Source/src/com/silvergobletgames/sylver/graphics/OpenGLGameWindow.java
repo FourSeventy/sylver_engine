@@ -382,8 +382,13 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glFlush();
               
         //Save the last render time before we call swap
-        OpenGLGameWindow.lastRenderTime = System.nanoTime() - start;   
-        //System.out.println("Render Time: " +lastRenderTime);       
+        OpenGLGameWindow.lastRenderTime = System.nanoTime() - start; 
+        boolean profileRendering = Game.getInstance().getConfiguration().getEngineSettings().profileRendering;
+        if( profileRendering== true)
+        {
+            //log times
+            System.err.println( "Total Render Time: " +lastRenderTime);
+        }
         
     }
 
