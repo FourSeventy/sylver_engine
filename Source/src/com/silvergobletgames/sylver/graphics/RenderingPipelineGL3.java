@@ -103,10 +103,10 @@ public class RenderingPipelineGL3
         glu.gluOrtho2D(0.0, viewport.getWidth(), 0.0, viewport.getHeight());
 
         //bind the framebuffer object
-        gl.glBindFramebuffer(GL3bc.GL_FRAMEBUFFER, OpenGLGameWindow.fbo);    
+        gl.glBindFramebuffer(GL3bc.GL_FRAMEBUFFER, Game.getInstance().getGraphicsWindow().getFbo());    
              
         //bind backbuffer texture, and clear its color
-        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.backbufferTexture, 0);
+        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getBackbufferTexture(), 0);
         gl.glClearColor(0, 0, 0, 0);
         gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
         gl.glPushAttrib(GL3bc.GL_VIEWPORT_BIT);
@@ -143,7 +143,7 @@ public class RenderingPipelineGL3
             //if we have blur enabled draw to layer buffer texture
             if(Game.getInstance().getConfiguration().getEngineSettings().gaussianBlur && layer.blurFactor != 0 && !visibleSceneObjects.isEmpty())
             {
-                gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[0][0], 0);
+                gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[0][0], 0);
                 gl.glClearColor(0, 0, 0, 0);
                 gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
             }
@@ -167,7 +167,7 @@ public class RenderingPipelineGL3
           
             //apply the layer blur
             if(Game.getInstance().getConfiguration().getEngineSettings().gaussianBlur && layer.blurFactor != 0 && !visibleSceneObjects.isEmpty())           
-                RenderingPipelineGL3.applyGaussianBlur(gl, viewport,layer.blurFactor,OpenGLGameWindow.textureArray[0][0]);
+                RenderingPipelineGL3.applyGaussianBlur(gl, viewport,layer.blurFactor,Game.getInstance().getGraphicsWindow().getFboTextureArray()[0][0]);
             
             if(profileRendering == true)
             {
@@ -244,7 +244,7 @@ public class RenderingPipelineGL3
         
 
         //bind the backbuffer texture
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.backbufferTexture);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getBackbufferTexture());
         
         gl.glEnable(GL3bc.GL_TEXTURE_2D);       
         gl.glMatrixMode(GL3bc.GL_MODELVIEW);
@@ -335,9 +335,9 @@ public class RenderingPipelineGL3
     private static void renderLighting(GL3bc gl, SceneObjectManager sceneObjectManager, Viewport viewport, SceneEffectsManager sceneEffectsManager)
     {
         //texture nicknames
-        int lightAccumulationTexture = OpenGLGameWindow.textureArray[0][0];
-        int lightTexture = OpenGLGameWindow.textureArray[0][1];
-        int shadowTexture = OpenGLGameWindow.textureArray[0][2];
+        int lightAccumulationTexture = Game.getInstance().getGraphicsWindow().getFboTextureArray()[0][0];
+        int lightTexture = Game.getInstance().getGraphicsWindow().getFboTextureArray()[0][1];
+        int shadowTexture = Game.getInstance().getGraphicsWindow().getFboTextureArray()[0][2];
         
         
         //===========================================================
@@ -737,7 +737,7 @@ public class RenderingPipelineGL3
          if(lightAccumulationOccupied == true )
          {
              //switch so we are drawing to the downsample texture
-            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[1][0], 0);
+            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][0], 0);
             gl.glMatrixMode(GL3bc.GL_MODELVIEW);
             gl.glLoadIdentity();
             gl.glClearColor(0, 0, 0, 0f);
@@ -779,7 +779,7 @@ public class RenderingPipelineGL3
             // =============================== Horizontal Pass ================================
             
             //draw to gaussian blur vertical
-            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D,OpenGLGameWindow.textureArray[1][1] , 0); 
+            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D,Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][1] , 0); 
             gl.glClearColor(0, 0, 0, 1);
             gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
             gl.glEnable(GL3bc.GL_TEXTURE_2D);
@@ -812,7 +812,7 @@ public class RenderingPipelineGL3
 
             //bind texture to draw from
             gl.glActiveTexture(GL3bc.GL_TEXTURE0);
-            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[1][0]);
+            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][0]);
             
             //sets the texture sampler
             gl.glUniform1i(gl.glGetUniformLocation(blur.program(), "s_texture"), 0);
@@ -841,7 +841,7 @@ public class RenderingPipelineGL3
             texCoordBuffer.put(new byte[]{(byte)1,(byte)0});
             texCoordBuffer.rewind();
             //Attach the backbuffer
-            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.backbufferTexture, 0);
+            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getBackbufferTexture(), 0);
             gl.glMatrixMode(GL3bc.GL_MODELVIEW);
             gl.glLoadIdentity();
             gl.glEnable(GL3bc.GL_BLEND);
@@ -874,7 +874,7 @@ public class RenderingPipelineGL3
 
             //bind texture to draw from
             gl.glActiveTexture(GL3bc.GL_TEXTURE0);
-            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[1][1]);
+            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][1]);
             
             //sets the texture sampler
             gl.glUniform1i(gl.glGetUniformLocation(blur.program(), "s_texture"), 0);
@@ -889,7 +889,7 @@ public class RenderingPipelineGL3
          else//render without blur
          {
             gl.glEnable(GL3bc.GL_TEXTURE_2D);
-            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.backbufferTexture, 0);
+            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getBackbufferTexture(), 0);
             gl.glMatrixMode(GL3bc.GL_MODELVIEW);
             gl.glLoadIdentity();
             gl.glEnable(GL3bc.GL_BLEND);
@@ -928,13 +928,13 @@ public class RenderingPipelineGL3
         gl.glDisable(GL3bc.GL_BLEND);
 
         //For each bloom level:
-        for (int i = 0; i < OpenGLGameWindow.textureArray.length ; i++) 
+        for (int i = 0; i < Game.getInstance().getGraphicsWindow().getFboTextureArray().length ; i++) 
         {
             gl.glMatrixMode(GL3bc.GL_MODELVIEW);
             gl.glLoadIdentity();
             
             //Attach the current bloom level's first texture to the FBO.
-            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[i][0], 0);
+            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[i][0], 0);
 
             int tx = (int) viewport.getWidth() / (int) (Math.pow(2, i));
             int ty = (int) viewport.getHeight() / (int) (Math.pow(2, i));
@@ -954,7 +954,7 @@ public class RenderingPipelineGL3
 
                 //bind the backbuffer texture
                 gl.glActiveTexture(GL3bc.GL_TEXTURE0);
-                gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.backbufferTexture);
+                gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getBackbufferTexture());
                 
                 //sets the texture sampler
                 gl.glUniform1i(gl.glGetUniformLocation(darkener.program(), "s_texture"), 0);
@@ -975,7 +975,7 @@ public class RenderingPipelineGL3
             } 
             else //Downsample the previous bloom level.
             {
-                gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[i - 1][0]);
+                gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[i - 1][0]);
 
                 gl.glBegin(GL3bc.GL_QUADS);
                     gl.glTexCoord2d(0.0, 0.0);
@@ -1013,7 +1013,7 @@ public class RenderingPipelineGL3
             texCoordBuffer.rewind();
 
             //Attach the second texture to the FBO.
-            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[i][1], 0);
+            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[i][1], 0);
             
             //Draw the first texture to the second using a horizontal blur shader.
             ShaderProgram blur = Game.getInstance().getAssetManager().getShaderLoader().getShaderProgram("fastGaussianVert.glsl", "fastGaussianFrag.glsl");
@@ -1041,7 +1041,7 @@ public class RenderingPipelineGL3
 
             //bind texture
             gl.glActiveTexture(GL3bc.GL_TEXTURE0);
-            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[i][0]);
+            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[i][0]);
             
             //sets the texture sampler
             gl.glUniform1i(gl.glGetUniformLocation(blur.program(), "s_texture"), 0);
@@ -1056,7 +1056,7 @@ public class RenderingPipelineGL3
             //==========================VERTICAL ====================================
 
             //Attach the first texture to the FBO.
-            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[i][0], 0);
+            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[i][0], 0);
             
             //Draw the second texture to the first using a vertical blur shader.
             blur = Game.getInstance().getAssetManager().getShaderLoader().getShaderProgram("fastGaussianVert.glsl", "fastGaussianFrag.glsl");
@@ -1084,7 +1084,7 @@ public class RenderingPipelineGL3
 
             //bind texture
             gl.glActiveTexture(GL3bc.GL_TEXTURE0);
-            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[i][1]);
+            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[i][1]);
             
             //sets the texture sampler
             gl.glUniform1i(gl.glGetUniformLocation(blur.program(), "s_texture"), 0);
@@ -1104,7 +1104,7 @@ public class RenderingPipelineGL3
               
             gl.glMatrixMode(GL3bc.GL_MODELVIEW);
             gl.glLoadIdentity();
-            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.backbufferTexture, 0);
+            gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getBackbufferTexture(), 0);
             gl.glEnable(GL3bc.GL_BLEND);
             gl.glBlendFunc(GL3bc.GL_ONE, GL3bc.GL_ONE);
             
@@ -1145,13 +1145,13 @@ public class RenderingPipelineGL3
 
             //binds the textures
             gl.glActiveTexture(GL3bc.GL_TEXTURE0);
-            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[0][0]);
+            gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[0][0]);
             gl.glActiveTexture(GL3bc.GL_TEXTURE1);
-            gl.glBindTexture(GL3bc.GL_TEXTURE_2D,OpenGLGameWindow.textureArray[1][0]);             
+            gl.glBindTexture(GL3bc.GL_TEXTURE_2D,Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][0]);             
             gl.glActiveTexture(GL3bc.GL_TEXTURE2);
-            gl.glBindTexture(GL3bc.GL_TEXTURE_2D,OpenGLGameWindow.textureArray[2][0]);
+            gl.glBindTexture(GL3bc.GL_TEXTURE_2D,Game.getInstance().getGraphicsWindow().getFboTextureArray()[2][0]);
             gl.glActiveTexture(GL3bc.GL_TEXTURE3);
-            gl.glBindTexture(GL3bc.GL_TEXTURE_2D,OpenGLGameWindow.textureArray[3][0]);
+            gl.glBindTexture(GL3bc.GL_TEXTURE_2D,Game.getInstance().getGraphicsWindow().getFboTextureArray()[3][0]);
             
             gl.glActiveTexture(GL3bc.GL_TEXTURE0);//have to do this for some horse shit reason
 
@@ -1185,7 +1185,7 @@ public class RenderingPipelineGL3
         //==============================
         
         //switch so we are drawing to the downsample texture
-        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[1][0], 0);
+        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][0], 0);
         gl.glMatrixMode(GL3bc.GL_MODELVIEW);
         gl.glLoadIdentity();
         gl.glClearColor(0, 0, 0, 0f);
@@ -1215,7 +1215,7 @@ public class RenderingPipelineGL3
         //======================
         
         //switch so we are drawing to the vertical blur texture
-        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[1][1], 0);
+        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][1], 0);
         gl.glMatrixMode(GL3bc.GL_MODELVIEW);
         gl.glLoadIdentity();
         gl.glClearColor(0, 0, 0, 0f);
@@ -1233,7 +1233,7 @@ public class RenderingPipelineGL3
         int blurSize = gl.glGetUniformLocation(gBlur.program(), "blurSize"); //gets handle to glsl variable               
         gl.glUniform1f(blurSize, 1f/((float)viewport.getHeight()/2));
 
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[1][0]);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][0]);
 
         gl.glBegin(GL3bc.GL_QUADS);
             gl.glTexCoord2d(0.0, 0.0);
@@ -1255,7 +1255,7 @@ public class RenderingPipelineGL3
         //==================
 
         //switch so we draw to the the horizontal texture
-        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[1][0], 0);
+        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][0], 0);
         gl.glMatrixMode(GL3bc.GL_MODELVIEW);
         gl.glLoadIdentity();
         gl.glClearColor(0, 0, 0, 0f);
@@ -1272,7 +1272,7 @@ public class RenderingPipelineGL3
         blurSize = gl.glGetUniformLocation(gBlur.program(), "blurSize"); //gets handle to glsl variable               
         gl.glUniform1f(blurSize, 1f/((float)viewport.getWidth()/2));
 
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[1][1]);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][1]);
 
         gl.glBegin(GL3bc.GL_QUADS);
             gl.glTexCoord2d(0.0, 0.0);
@@ -1293,7 +1293,7 @@ public class RenderingPipelineGL3
         //============================
 
         //switch so we draw to the the backbuffer texture
-        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.backbufferTexture, 0);
+        gl.glFramebufferTexture2D(GL3bc.GL_FRAMEBUFFER, GL3bc.GL_COLOR_ATTACHMENT0, GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getBackbufferTexture(), 0);
         gl.glMatrixMode(GL3bc.GL_MODELVIEW);
         gl.glLoadIdentity();
         gl.glEnable(GL3bc.GL_BLEND);
@@ -1339,7 +1339,7 @@ public class RenderingPipelineGL3
         //binds our texture to texture unit 0    
         gl.glEnable(GL3bc.GL_TEXTURE_2D);  
         gl.glActiveTexture(GL3bc.GL_TEXTURE0);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, OpenGLGameWindow.textureArray[1][0]);     
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, Game.getInstance().getGraphicsWindow().getFboTextureArray()[1][0]);     
 
         //sets the texture sampler
         gl.glUniform1i(gl.glGetUniformLocation(imageShader.program(), "s_texture"), 0);

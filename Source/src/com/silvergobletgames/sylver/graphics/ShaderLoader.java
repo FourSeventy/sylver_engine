@@ -78,10 +78,10 @@ public class ShaderLoader {
     {
 
         //make the loading buffer context current
-        Game.getInstance().getGraphicsWindow().loadingBuffer.getContext().makeCurrent();
+        Game.getInstance().getGraphicsWindow().getOffscreenLoadingBuffer().getContext().makeCurrent();
         
         //get the gl context
-        GL2 gl =Game.getInstance().getGraphicsWindow().loadingBuffer.getGL().getGL2();
+        GL2 gl =Game.getInstance().getGraphicsWindow().getOffscreenLoadingBuffer().getGL().getGL2();
         
      
         //build the shader code objects from the files on disk
@@ -122,7 +122,7 @@ public class ShaderLoader {
         shaderMap.put(vertexName + fragName, program);
         
         //release context
-        Game.getInstance().getGraphicsWindow().loadingBuffer.getContext().release();
+        Game.getInstance().getGraphicsWindow().getOffscreenLoadingBuffer().getContext().release();
         
     }
     

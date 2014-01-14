@@ -1,5 +1,6 @@
 package com.silvergobletgames.sylver.graphics;
 
+import com.jogamp.newt.MonitorDevice;
 import com.jogamp.newt.MonitorMode;
 import com.jogamp.newt.Screen;
 import com.jogamp.newt.event.WindowListener;
@@ -8,6 +9,7 @@ import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.newt.util.MonitorModeUtil;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.AnimatorBase;
+import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.jogamp.opengl.util.texture.Texture;
@@ -45,29 +47,27 @@ import javax.media.nativewindow.util.RectangleImmutable;
 public class OpenGLGameWindow implements GLEventListener 
 {
     //the GLWindow that we render to
-    public GLWindow glWindow; 
+    private GLWindow glWindow; 
     //a drawable that should only be used for getting a context for loading textures and shaders
-    public GLPbuffer loadingBuffer;   
+    private GLOffscreenAutoDrawable offscreenLoadingBuffer;   
+    
     //the scene queued for rendering
     private Scene sceneToRender;   
-    //vsync toggle
-    private boolean waitingToToggleVSync = false;
     //Last render time
-    public static long lastRenderTime;
+    private static long lastRenderTime;
     
     //map containing text renderers
-    public static HashMap<TextType,TextRenderer> textRenderers = new HashMap();
+    private HashMap<TextType,TextRenderer> textRenderers = new HashMap<>();
     //map containing the font metrics for the different text types
-    public static HashMap<TextType,FontMetrics> fontMetricsMap = new HashMap();
+    private HashMap<TextType,FontMetrics> fontMetricsMap = new HashMap<>();
     
     //current cursor
-    public Cursor cursor;
-   
+    private Cursor cursor;
        
     //FBO and FBO Texture variables    
-    public static int fbo;
-    public static int backbufferTexture;
-    public static int[][] textureArray = new int[4][3]; // x = 0: 1x,    x = 1: 2x,    x = 2: 4x,    x = 3: 8x;
+    private int fbo;
+    private int backbufferTexture;
+    private int[][] fboTextureArray = new int[4][3]; // x = 0: 1x,    x = 1: 2x,    x = 2: 4x,    x = 3: 8x;
     
     //aspect ratio variables
     private final Point ASPECT_RATIO_16_9 = new Point(1600,900);
@@ -76,7 +76,6 @@ public class OpenGLGameWindow implements GLEventListener
     private final Point ASPECT_RATIO_4_3 = new Point(1200,900);
     public Point viewportPixelSize = new Point();   
     private Point currentAspectRatio;
-         
     
     
     //=================
@@ -86,46 +85,32 @@ public class OpenGLGameWindow implements GLEventListener
     public OpenGLGameWindow() 
     {  
         
-        //supposed mandatory call
-        GLProfile.initSingleton();
-        
-        //gets the glProfile and checks that it is GL3 compatible
+        //gets the glProfile and checks for GL capabilities
         GLProfile glProfile = GLProfile.getDefault();  
         Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName()); 
         logger.log(Level.INFO, "Initializing OpenGL:");
-        logger.log(Level.INFO, " Is capable of GL2: " + glProfile.isGL2());
-        logger.log(Level.INFO, " Is capable of GL3: " + glProfile.isGL3());
-        logger.log(Level.INFO, " Is capable of GLSL: " + glProfile.hasGLSL()  + "\n");
+        logger.log(Level.INFO, "Capabilities: \n Is capable of GL2: " + glProfile.isGL2() + 
+                               "\n" + " Is capable of GL3: " + glProfile.isGL3()+ 
+                               "\n" + " Is capable of GLSL: " + glProfile.hasGLSL()  + "\n" );
         
         //build the glCapabilities, and set some settings
         GLCapabilities glCapabilities = new GLCapabilities(glProfile);
         glCapabilities.setDoubleBuffered(true);
-        glCapabilities.setHardwareAccelerated(true);            
+        glCapabilities.setHardwareAccelerated(true);   
+        glCapabilities.setBackgroundOpaque(true);
+        glCapabilities.setOnscreen(true);
+        glCapabilities.setSampleBuffers(false);
         
-        //build and initialize our window
+        //build and initialize our NEWT glWindow
         glWindow = GLWindow.create(glCapabilities);
         glWindow.setTitle("Lead Crystal");
         glWindow.addGLEventListener(this);
-        glWindow.setAutoSwapBufferMode(true);  
+        glWindow.setAutoSwapBufferMode(false);  //important to manually swap our buffers !dont change!
         glWindow.setAlwaysOnTop(false);
         glWindow.setUpdateFPSFrames(10, null);
         glWindow.setPosition(10 , 30);
         
-         //set visible and set the screen size and fullscreen 
-        glWindow.setVisible(true);  
-        
-        //set up loading buffer
-        GLDrawableFactory factor = GLDrawableFactory.getFactory(glWindow.getGLProfile());
-        GLCapabilitiesChooser glcc = new DefaultGLCapabilitiesChooser(); 
-        GLPbuffer buffer =factor.createGLPbuffer(factor.getDefaultDevice(), glWindow.getChosenGLCapabilities(), glcc, 800, 600, glWindow.getContext());
-        buffer.createContext(glWindow.getContext());
-        loadingBuffer = buffer;
-          
-    }
-    
-    public void postInit()
-    {
-         //if we dont have a screen resolution in our user settings, set a default one
+        //if we dont have a screen resolution in our user settings, set a default one
         if(Game.getInstance().getConfiguration().getEngineSettings().screenResolution.getWidth() == 0)
         {
             Screen screen = glWindow.getScreen();
@@ -136,13 +121,29 @@ public class OpenGLGameWindow implements GLEventListener
         }
         
         //set screen size
-        this.setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);
+        this.setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);                     
+        
+        //set visible and set the screen size and fullscreen 
+        glWindow.setVisible(true); 
         
         //set fullscreen
         if(Game.getInstance().getConfiguration().getEngineSettings().fullScreen == true)
-            this.toggleFullScreen();      
+            this.toggleFullScreen(); 
+           
         
-                
+        //set up loading buffer
+        GLDrawableFactory glDrawableFactory = GLDrawableFactory.getFactory(glProfile);
+        GLCapabilities glOffscreenCapabilities = new GLCapabilities(glProfile);
+        glOffscreenCapabilities.setOnscreen(false);
+        glOffscreenCapabilities.setPBuffer(true);        
+        GLCapabilitiesChooser glcc = new DefaultGLCapabilitiesChooser(); 
+        GLOffscreenAutoDrawable offscreenDrawable = glDrawableFactory.createOffscreenAutoDrawable(glDrawableFactory.getDefaultDevice(),glWindow.getChosenGLCapabilities() , glcc, 800, 600,glWindow.getContext()); 
+        offscreenLoadingBuffer = offscreenDrawable;
+
+    }
+    
+    public void postInit()
+    {                                
         //init key listeners
         this.glWindow.addKeyListener(Game.getInstance().getInputHandler()); 
         this.glWindow.addMouseListener(Game.getInstance().getInputHandler());
@@ -193,81 +194,70 @@ public class OpenGLGameWindow implements GLEventListener
         this.glWindow.setDefaultCloseOperation(WindowClosingProtocol.WindowClosingMode.DO_NOTHING_ON_CLOSE);
        
         //load system textures
-        URL textureURL = OpenGLGameWindow.class.getClassLoader().getResource("com/silvergobletgames/sylver/systemtextures");
-        try
-        {
-            Game.getInstance().getAssetManager().getTextureLoader().loadAllTextures(textureURL.toURI());
-        }
-        catch (IOException |URISyntaxException ex)
-        {
-            //log error to console
-            Logger errorLogger =Logger.getLogger(OpenGLGameWindow.class.getName());
-            errorLogger.log(Level.SEVERE, "Error Loading System Texture: " + ex.getMessage(), ex);
-       
-        }
+        this.loadSystemTextures();
         
         //load system shaders
         this.loadSystemShaders();
                              
         //init text renderers
-        registerDefaultTextRenderers(); 
+        this.registerDefaultTextRenderers(); 
         
-                //attach fakey animator to ignore repaint events
-       glWindow.setAnimator(new AnimatorBase(){
-           {
+        
+        //attach fakey animator to ignore repaint events
+//        glWindow.setAnimator(new AnimatorBase(){
+//           {
+//               
+//           }
+//           @Override
+//           public boolean isStarted()
+//           {
+//               return true;
+//           }
+//           
+//           @Override
+//           public boolean isAnimating()
+//           {
+//               return true;
+//           }
+//           
+//           @Override
+//           public boolean start()
+//           {
+//               return true;
+//           }
+//
+//            @Override
+//            protected String getBaseName(String string)
+//            {
+//              return "animator";
+//            }
+//
+//            @Override
+//            public boolean isPaused()
+//            {
+//              return false;
+//            }
+//
+//            @Override
+//            public boolean stop()
+//            {
+//              return true;
+//            }
+//
+//            @Override
+//            public boolean pause()
+//            {
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean resume()
+//            {
+//                return true;
+//            }
+//       });      
+//        glWindow.getAnimator().start();
                
-           }
-           @Override
-           public boolean isStarted()
-           {
-               return true;
-           }
-           
-           @Override
-           public boolean isAnimating()
-           {
-               return true;
-           }
-           
-           @Override
-           public boolean start()
-           {
-               return true;
-           }
-
-            @Override
-            protected String getBaseName(String string)
-            {
-              return "animator";
-            }
-
-            @Override
-            public boolean isPaused()
-            {
-              return false;
-            }
-
-            @Override
-            public boolean stop()
-            {
-              return true;
-            }
-
-            @Override
-            public boolean pause()
-            {
-                return true;
-            }
-
-            @Override
-            public boolean resume()
-            {
-                return true;
-            }
-       });      
-       glWindow.getAnimator().start();
-               
-
     }
     
  
@@ -280,18 +270,20 @@ public class OpenGLGameWindow implements GLEventListener
     //openGL dispose callback
     public void dispose(GLAutoDrawable drawable) 
     {
-       
+       Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
+        logger.log(Level.INFO, "OpenGL dispose()");
     }
 
     //openGL init callback
     public void init(GLAutoDrawable drawable) 
     {
+           
+        Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
+        logger.log(Level.INFO, "OpenGL init()");
+                        
         //get graphics context
         GL2 gl = drawable.getGL().getGL2();
         GLU glu = new GLU();
-
-        //determine the correct aspect ratio
-        this.determineAspectRatio();
         
         //initialize modelview matrix
         gl.glMatrixMode(GL2.GL_MODELVIEW);
@@ -319,82 +311,21 @@ public class OpenGLGameWindow implements GLEventListener
         gl.setSwapInterval(Game.getInstance().getConfiguration().getEngineSettings().vSync? 1: 0); 
         
         gl.glClearColor(0, 0, 0, 1);
-        gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
-        
-        //set display gamma
-        //com.jogamp.opengl.util.Gamma.setDisplayGamma(gl, 3, 0, 1);
-                  
+        gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);    
+                 
     }
     
     //openGL display callback
-    public void display(GLAutoDrawable drawable) 
+    public void display(GLAutoDrawable glAutoDrawable) 
     {
-        long start = System.nanoTime();    
-        
-        //gets the appropriate graphics context from the glWindow
-        GL2 gl;
-        if(drawable.getGL().getGLProfile().isGL4bc())
-            gl = drawable.getGL().getGL4bc();
-        else if(drawable.getGL().getGLProfile().isGL3bc())
-            gl = drawable.getGL().getGL3bc();
-        else
-            gl = drawable.getGL().getGL2();
-        
-        //toggles vsync on or off
-        if(waitingToToggleVSync)
-        {
-            gl.setSwapInterval(Game.getInstance().getConfiguration().getEngineSettings().vSync ? 1: 0);
-            waitingToToggleVSync = false;
-        }               
-           
-        //tells the scene to render itself
-        if (sceneToRender != null) 
-        {
-            sceneToRender.render(gl);                
-        }
-        else
-        {
-            gl.glClearColor(0, 0, 0, 1);
-            gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
-        }
-
-        //reconfigures matrices for cursor draw
-        Point aspectRatio = this.getCurrentAspectRatio();
-        gl.glMatrixMode(GL3bc.GL_PROJECTION);
-        gl.glLoadIdentity();
-        GLU glu = new GLU();
-        glu.gluOrtho2D(0.0, aspectRatio.x, 0.0, aspectRatio.y);
-        
-        gl.glMatrixMode(GL3bc.GL_MODELVIEW);
-        gl.glLoadIdentity();
-        glu.gluLookAt(0, 0, 1, 0, 0, 0, 0, 1, 0);
-        
-        //Draw cursor
-        if(this.cursor != null)
-        {
-            this.cursor.getImage().update();
-            this.cursor.getImage().setPositionAnchored(Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().x, Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().y);
-            this.cursor.getImage().draw(gl);
-        }
-        
-        
-        //flushes pending openGL commands from the context, !!needs to be here!!
-        gl.glFlush();
-              
-        //Save the last render time before we call swap
-        OpenGLGameWindow.lastRenderTime = System.nanoTime() - start; 
-        boolean profileRendering = Game.getInstance().getConfiguration().getEngineSettings().profileRendering;
-        if( profileRendering== true)
-        {
-            //log times
-            System.err.println( "Total Render Time: " +lastRenderTime);
-        }
-        
+        //code gets piped into this via a GLRunnable fron the renderScene() method
     }
 
     //openGL reshape callback
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height)
     {
+        Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
+        logger.log(Level.INFO, "OpenGL reshape()");
         
         //gets the appropriate graphics context from the glWindow
         GL2 gl;
@@ -451,12 +382,122 @@ public class OpenGLGameWindow implements GLEventListener
     //openGL display changed callback
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged)
     {
+        Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
+        logger.log(Level.INFO, "OpenGL displayChanged()");
     }
     
     
     //====================
     // Class Methods
     //====================
+    
+    /**
+     * Pass a scene to this method to render it. This method is for engine use only
+     * @param s Scene to render
+     */
+    public void renderScene(Scene s) 
+    {
+        sceneToRender = s;
+       
+        glWindow.invoke(true, new GLRunnable() {
+            
+                @Override
+                public boolean run(final GLAutoDrawable glAutoDrawable)
+                {
+  
+                    long start = System.nanoTime();    
+        
+                    //makes the glContext current
+                    glWindow.getContext().makeCurrent();
+
+                    //gets the appropriate graphics context from the glWindow
+                    GL2 gl;
+                    if(glAutoDrawable.getGL().getGLProfile().isGL4bc())
+                        gl = glAutoDrawable.getGL().getGL4bc();
+                    else if(glAutoDrawable.getGL().getGLProfile().isGL3bc())
+                        gl = glAutoDrawable.getGL().getGL3bc();
+                    else
+                        gl = glAutoDrawable.getGL().getGL2();              
+
+                    //clears the frame buffer
+                    gl.glClearColor(0, 0, 0, 1);
+                    gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
+                        
+                    //tells the scene to render itself
+                    if (sceneToRender != null) 
+                    {
+                        sceneToRender.render(gl);                
+                    }
+
+                    //reconfigures matrices for cursor draw
+                    Point aspectRatio = getCurrentAspectRatio();
+                    gl.glMatrixMode(GL3bc.GL_PROJECTION);
+                    gl.glLoadIdentity();
+                    GLU glu = new GLU();
+                    glu.gluOrtho2D(0.0, aspectRatio.x, 0.0, aspectRatio.y);
+
+                    gl.glMatrixMode(GL3bc.GL_MODELVIEW);
+                    gl.glLoadIdentity();
+                    glu.gluLookAt(0, 0, 1, 0, 0, 0, 0, 1, 0);
+
+                    //Draw cursor
+                    if(cursor != null)
+                    {
+                        cursor.getImage().update();
+                        cursor.getImage().setPositionAnchored(Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().x, Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().y);
+                        cursor.getImage().draw(gl);
+                    }
+
+                    //Save the last render time before we call swap
+                    OpenGLGameWindow.lastRenderTime = System.nanoTime() - start; 
+                    boolean profileRendering = Game.getInstance().getConfiguration().getEngineSettings().profileRendering;
+                    if( profileRendering== true)
+                    {
+                        //log times
+                        System.err.println( "Total Render Time: " +lastRenderTime);
+                    }
+
+                   //flushes pending openGL commands from the context, !!needs to be here!!
+                   gl.glFlush();
+                   
+                   //swaps the back buffer !!needs to be here!!
+                   glWindow.swapBuffers();
+                   
+                   //releases the glContext
+                   glWindow.getContext().release();                 
+                                      
+                    return true;
+                }
+            });       
+        
+    }
+    
+    /**
+     * Gets the FBO handle that has been initalized by this window
+     * @return the FBO handle
+     */
+    public int getFbo()
+    {
+        return this.fbo;
+    }
+    
+    /**
+     * Gets the backbuffer texture handle that has been initalized by this window
+     * @return the backbuffer texture handle
+     */
+    public int getBackbufferTexture()
+    {
+        return this.backbufferTexture;
+    }
+    
+    /**
+     * Gets the FboTextureArray handle that has been initalized by this window
+     * @return the FboTextureArray handle
+     */
+    public int[][] getFboTextureArray()
+    {
+        return this.fboTextureArray;
+    }
     
     /**
      * Gets the aspect ratio that the game is currently set to
@@ -470,7 +511,7 @@ public class OpenGLGameWindow implements GLEventListener
     /**
      * Toggles fullscreen on and off. This should put the game into full-screen exclusive mode
      */
-    public final void toggleFullScreen()
+    public void toggleFullScreen()
     {
         if(glWindow.isFullscreen())
         {
@@ -482,11 +523,37 @@ public class OpenGLGameWindow implements GLEventListener
         {
             //switches to fullscreen mode and sets the display device to the correct resolution
             glWindow.setFullscreen(true);
-            //setDisplayResolution(SystemSettings.getInstance().screenResolution);
+            
+            //if screen size doesnt match current display resolution
+            setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);           
         }
+      
         
         //makes sure we are not AlwaysOnTop
         glWindow.setAlwaysOnTop(false);
+    }
+    
+    /**
+     * Toggle vsync onn and off
+     */
+    public void toggleVSync()
+    {
+       glWindow.invoke(false, new GLRunnable() {
+                @Override
+                public boolean run(final GLAutoDrawable glAutoDrawable)
+                {
+                    if(glWindow.getGL().getSwapInterval() == 0)
+                    {
+                        glWindow.getGL().setSwapInterval(1);
+                    }
+                    else
+                    {
+                        glWindow.getGL().setSwapInterval(0);
+                    }
+                                      
+                    return true;
+                }
+            });
     }
     
     /**
@@ -495,9 +562,9 @@ public class OpenGLGameWindow implements GLEventListener
      * of the window.
      * @param resolution New resolution to display at 
      */
-    public final void setDisplayResolution(javax.media.nativewindow.util.Dimension resolution)
-    {
-       // change the window size
+    public void setDisplayResolution(javax.media.nativewindow.util.Dimension resolution)
+    {        
+        //change the window size
         glWindow.setSize(resolution.getWidth(),resolution.getHeight());
         
         //if we are in fullscreen change the screen resolution
@@ -513,11 +580,14 @@ public class OpenGLGameWindow implements GLEventListener
             { 
                 monitorModes = new ArrayList(MonitorModeUtil.filterByRate(monitorModes, currentMonitorMode.getRefreshRate())); 
                 monitorModes = new ArrayList(MonitorModeUtil.filterByRotation(monitorModes, 0)); 
-                monitorModes = new ArrayList (MonitorModeUtil.filterByResolution(monitorModes, resolution)); 
-                monitorModes = new ArrayList (MonitorModeUtil.getHighestAvailableBpp(monitorModes)); 
+                monitorModes = new ArrayList(MonitorModeUtil.filterByResolution(monitorModes, resolution)); 
+                monitorModes = new ArrayList(MonitorModeUtil.getHighestAvailableBpp(monitorModes)); 
 
                 MonitorMode sm = (MonitorMode) monitorModes.get(0); 
                 glWindow.getMainMonitor().setCurrentMode(sm); 
+                
+                Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
+                logger.log(Level.INFO, "Set to monitor mode: " + sm.toString());
             } 
         }
              
@@ -526,20 +596,12 @@ public class OpenGLGameWindow implements GLEventListener
         
        
     }
-    
-    /**
-     * Toggle vsync onn and off
-     */
-    public void toggleVSync()
-    {
-        this.waitingToToggleVSync = true;
-    }
-     
+       
     /**
      * Sets the current cursor
      * @param cursor Cursor that will be rendered
      */
-    public final void setCursor(Cursor cursor)
+    public void setCursor(Cursor cursor)
     {
         //set cursor
         this.cursor = cursor;
@@ -548,9 +610,16 @@ public class OpenGLGameWindow implements GLEventListener
             glWindow.setPointerVisible(false);                
         else       
             glWindow.setPointerVisible(true);
-        
-            
-         
+               
+    }
+    
+    /**
+     * Sets the visibility of the windows pointer 
+     * @param value true makes the pointer visible, false hides it
+     */
+    public void setPointerVisible(boolean value)
+    {
+        this.glWindow.setPointerVisible(value);
     }
 
     /**
@@ -584,14 +653,83 @@ public class OpenGLGameWindow implements GLEventListener
        
        this.glWindow.resetFPSCounter();
        return fps;
-    }   
+    }  
+    
+    /**
+     * Gets the width of the window
+     * @return width of the window
+     */
+    public int getWidth()
+    {
+        return this.glWindow.getWidth();
+    }
+    
+    /**
+     * Gets the height of the window
+     * @return height of the window
+     */
+    public int getHeight()
+    {
+        return this.glWindow.getHeight();
+    }
+    
+    /**
+     * Returns the MonitorDevice which viewport covers this window the most.
+     * @return 
+     */
+    public MonitorDevice getMainMonitor()
+    {
+        return this.glWindow.getMainMonitor();
+    }
+    
+    /**
+     * Returns the location of the upper left point of the window in screen coordinates
+     * @return window location
+     */
+    public javax.media.nativewindow.util.Point getLocationOnScreen()
+    {
+        return this.glWindow.getLocationOnScreen(null);
+    }
+    
+    @Deprecated
+    public void setVisible(boolean value)
+    {
+        this.glWindow.setVisible(value);
+    }
+    
+    /**
+     * Returns the offscreen loading buffer which has been set up to handle loading textures and shaders on a seperate thread
+     * @return offscreenLoadingBuffer
+     */
+    protected GLOffscreenAutoDrawable getOffscreenLoadingBuffer()
+    {
+        return this.offscreenLoadingBuffer;
+    }
+    
+    /**
+     * Returns a map of all the registered TextRenderers
+     * @return map of registered TextRenderers
+     */
+    protected HashMap<TextType,TextRenderer> getTextRenderers()
+    {
+        return this.textRenderers;
+    }
+    
+    /**
+     * Returns a map of the FontMetrics for all the registered TextRenderers 
+     * @return map of FontMetrics
+     */
+    protected HashMap<TextType,FontMetrics> getFontMetrics()
+    {
+        return this.fontMetricsMap;
+    }
     
     //=====================
     // Private Methods
     //====================
     
     /**
-     * Load the glsl shaders that are used by the Sylver engine.
+     * Load the glsl shaders that are used by the Sylver Engine.
      */
     private void loadSystemShaders()
     {
@@ -613,8 +751,26 @@ public class OpenGLGameWindow implements GLEventListener
             throw new RuntimeException("Error loading Sylver system shaders");
         }
     }
-   
     
+    /**
+     * Loads the textures that are used by the Sylver Engine
+     */
+    private void loadSystemTextures()
+    {
+        URL textureURL = OpenGLGameWindow.class.getClassLoader().getResource("com/silvergobletgames/sylver/systemtextures");
+        try
+        {
+            Game.getInstance().getAssetManager().getTextureLoader().loadAllTextures(textureURL.toURI());
+        }
+        catch (IOException |URISyntaxException ex)
+        {
+            //log error to console
+            Logger errorLogger =Logger.getLogger(OpenGLGameWindow.class.getName());
+            errorLogger.log(Level.SEVERE, "Error Loading System Texture: " + ex.getMessage(), ex);
+       
+        }
+    }
+   
     /**
      * Registers the default text renderers
      */
@@ -669,15 +825,15 @@ public class OpenGLGameWindow implements GLEventListener
         //delete textures
         IntBuffer textureBuffer = IntBuffer.allocate(10);
         textureBuffer.put(backbufferTexture);  
-        textureBuffer.put(textureArray[0][0]);
-        textureBuffer.put(textureArray[0][1]);
-        textureBuffer.put(textureArray[0][2]);
-        textureBuffer.put(textureArray[1][0]);
-        textureBuffer.put(textureArray[1][1]);
-        textureBuffer.put(textureArray[2][0]);
-        textureBuffer.put(textureArray[2][1]);
-        textureBuffer.put(textureArray[3][0]);
-        textureBuffer.put(textureArray[3][1]);       
+        textureBuffer.put(fboTextureArray[0][0]);
+        textureBuffer.put(fboTextureArray[0][1]);
+        textureBuffer.put(fboTextureArray[0][2]);
+        textureBuffer.put(fboTextureArray[1][0]);
+        textureBuffer.put(fboTextureArray[1][1]);
+        textureBuffer.put(fboTextureArray[2][0]);
+        textureBuffer.put(fboTextureArray[2][1]);
+        textureBuffer.put(fboTextureArray[3][0]);
+        textureBuffer.put(fboTextureArray[3][1]);       
         textureBuffer.rewind();
         gl.glDeleteTextures(10, textureBuffer);
         
@@ -706,8 +862,8 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
         
         //TEXTURE: Bloom - Level 1 - Vertical
-        textureArray[0][0] = generatedTextures.get(1);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[0][0]);
+        fboTextureArray[0][0] = generatedTextures.get(1);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, fboTextureArray[0][0]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w, h, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
@@ -716,8 +872,8 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
         
         //TEXTURE: Bloom - Level 1 - Horizontal
-        textureArray[0][1] = generatedTextures.get(2);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[0][1]);
+        fboTextureArray[0][1] = generatedTextures.get(2);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, fboTextureArray[0][1]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w, h, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
@@ -726,8 +882,8 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
         
         //TEXTURE: Bloom - Level 1 - Vertical
-        textureArray[0][2] = generatedTextures.get(9);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[0][2]);
+        fboTextureArray[0][2] = generatedTextures.get(9);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, fboTextureArray[0][2]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w, h, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
@@ -736,8 +892,8 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
         
         //TEXTURE: Bloom - Level 2 - Vertical
-        textureArray[1][0] = generatedTextures.get(3);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[1][0]);
+        fboTextureArray[1][0] = generatedTextures.get(3);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, fboTextureArray[1][0]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w/2, h/2, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
@@ -746,8 +902,8 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
         
         //TEXTURE: Bloom - Level 2 - Horizontal
-        textureArray[1][1] = generatedTextures.get(4);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[1][1]);
+        fboTextureArray[1][1] = generatedTextures.get(4);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, fboTextureArray[1][1]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w/2, h/2, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
@@ -756,8 +912,8 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
         
         //TEXTURE: Bloom - Level 2 - Vertical
-        textureArray[2][0] = generatedTextures.get(5);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[2][0]);
+        fboTextureArray[2][0] = generatedTextures.get(5);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, fboTextureArray[2][0]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w/4, h/4, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
@@ -766,8 +922,8 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
         
         //TEXTURE: Bloom - Level 2 - Horizontal
-        textureArray[2][1] = generatedTextures.get(6);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[2][1]);
+        fboTextureArray[2][1] = generatedTextures.get(6);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, fboTextureArray[2][1]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w/4, h/4, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
@@ -776,8 +932,8 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
         
         //TEXTURE: Bloom - Level 3 - Vertical
-        textureArray[3][0] = generatedTextures.get(7);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[3][0]);
+        fboTextureArray[3][0] = generatedTextures.get(7);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, fboTextureArray[3][0]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w/8, h/8, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
@@ -786,8 +942,8 @@ public class OpenGLGameWindow implements GLEventListener
         gl.glBindTexture(GL3bc.GL_TEXTURE_2D, 0);
         
         //TEXTURE: Bloom - Level 3 - Horizontal
-        textureArray[3][1] = generatedTextures.get(8);
-        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, textureArray[3][1]);
+        fboTextureArray[3][1] = generatedTextures.get(8);
+        gl.glBindTexture(GL3bc.GL_TEXTURE_2D, fboTextureArray[3][1]);
         gl.glTexImage2D(GL3bc.GL_TEXTURE_2D, 0, GL3bc.GL_RGBA16F, w/8, h/8, 0, GL3bc.GL_RGBA, GL3bc.GL_UNSIGNED_BYTE, null);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_S, GL3bc.GL_CLAMP_TO_EDGE);
         gl.glTexParameterf(GL3bc.GL_TEXTURE_2D, GL3bc.GL_TEXTURE_WRAP_T, GL3bc.GL_CLAMP_TO_EDGE);
@@ -841,23 +997,13 @@ public class OpenGLGameWindow implements GLEventListener
                       
     }
     
-    /**
-     * Pass a scene to this method to render it. This method is for engine use only
-     * @param s Scene to render
-     */
-    public void renderScene(Scene s) 
-    {
-        sceneToRender = s;
-        glWindow.display();
-        
-    }
     
     
     //====================
     // Inner classes
     //====================     
     
-     /**
+    /**
      * This class is used by the TextRenderer to do fancy things.  It is instantiated
      * when we build a new TextRenderer.
      */

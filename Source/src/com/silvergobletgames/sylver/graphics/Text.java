@@ -2,6 +2,7 @@ package com.silvergobletgames.sylver.graphics;
 
 import com.jogamp.graph.font.FontFactory;
 import com.jogamp.opengl.util.awt.TextRenderer;
+import com.silvergobletgames.sylver.core.Game;
 import com.silvergobletgames.sylver.core.SceneObject;
 import com.silvergobletgames.sylver.core.SceneObjectManager;
 import com.silvergobletgames.sylver.graphics.TextEffect.TextEffectType;
@@ -116,7 +117,7 @@ public class Text extends NetworkedSceneObject implements Anchorable
     public void draw(GL2 gl2)
     {
         //get the text renderer
-        TextRenderer tr = OpenGLGameWindow.textRenderers.get(textType);
+        TextRenderer tr = Game.getInstance().getGraphicsWindow().getTextRenderers().get(textType);
         
         //if the text renderer is null print an error and use the default
         if(tr == null)
@@ -126,7 +127,7 @@ public class Text extends NetworkedSceneObject implements Anchorable
             logger.log(Level.SEVERE, "Text Renderer " + textType.toString() + ", is not registered");
         
         
-            tr = OpenGLGameWindow.textRenderers.get(CoreTextType.DEFAULT);
+            tr = Game.getInstance().getGraphicsWindow().getTextRenderers().get(CoreTextType.DEFAULT);
         }
 
         //model view transforms
@@ -279,7 +280,7 @@ public class Text extends NetworkedSceneObject implements Anchorable
      */
     public float getWidth()
     {
-        FontMetrics fm = OpenGLGameWindow.fontMetricsMap.get(this.textType);     
+        FontMetrics fm = Game.getInstance().getGraphicsWindow().getFontMetrics().get(this.textType);     
         float width = fm.stringWidth(text); 
         width *= scale;
         return (float)width;
@@ -287,7 +288,7 @@ public class Text extends NetworkedSceneObject implements Anchorable
     
     public float getHeight()
     {
-        FontMetrics fm = OpenGLGameWindow.fontMetricsMap.get(this.textType);     
+        FontMetrics fm = Game.getInstance().getGraphicsWindow().getFontMetrics().get(this.textType);     
         float height = fm.getHeight(); 
         height *= scale;
         return (float)height;

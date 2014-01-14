@@ -511,15 +511,17 @@ public final class Game
         //get window position and size for centering error box
         int width = 0,height = 0;
         javax.media.nativewindow.util.Point windowLocation = new javax.media.nativewindow.util.Point();
-        try{           
-            this.getGraphicsWindow().glWindow.getLocationOnScreen(windowLocation);
-            width =this.getGraphicsWindow().glWindow.getWidth();
-            height = this.getGraphicsWindow().glWindow.getHeight();
+        try
+        {           
+            windowLocation = this.getGraphicsWindow().getLocationOnScreen();
+            width =this.getGraphicsWindow().getWidth();
+            height = this.getGraphicsWindow().getHeight();
 
             //hide glwindow
-            this.getGraphicsWindow().glWindow.setVisible(false);
-            this.getGraphicsWindow().glWindow.setPointerVisible(true);
-        }catch(Exception ex){}
+            this.getGraphicsWindow().setVisible(false);
+            this.getGraphicsWindow().setPointerVisible(true);
+        }
+        catch(Exception ex){ ex.printStackTrace(System.err);}
       
 
         //log error to console
@@ -532,11 +534,12 @@ public final class Game
         logger.log(Level.SEVERE, "GAME CRASH: {0}", e.toString() + " : " +stackTrace);
         logger.addHandler(new ConsoleHandler()); 
         
-        try{
+        try
+        {
             //cleanup audio     
             this.audioRenderer.cleanupAudioRenderer();
         }
-        catch(Exception ex){}
+        catch(Exception ex){ex.printStackTrace(System.err);}
             
 
         //show error window
@@ -548,8 +551,9 @@ public final class Game
         JOptionPane.showMessageDialog(frame, e.toString() + " : " +stackTrace);
 
         //shutdown
-        try{
-        this.performSystemShutdown();
+        try
+        {
+           this.performSystemShutdown();
         }
         catch(Exception ex){System.exit(1);}
     }

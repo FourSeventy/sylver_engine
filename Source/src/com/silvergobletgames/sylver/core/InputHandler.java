@@ -173,7 +173,7 @@ public class InputHandler implements MouseListener,KeyListener
         Cursor cursor = Game.getInstance().getGraphicsWindow().getCursor();
         if (cursor != null)
         {
-            Game.getInstance().getGraphicsWindow().glWindow.setPointerVisible(false);  
+            Game.getInstance().getGraphicsWindow().setPointerVisible(false);  
             cursor.getImage().setColor(new Color(cursor.getImage().getColor().r, cursor.getImage().getColor().g, cursor.getImage().getColor().b, 1)); 
         }
         
@@ -183,7 +183,7 @@ public class InputHandler implements MouseListener,KeyListener
     public void mouseExited(MouseEvent e)
     {
 
-        Game.getInstance().getGraphicsWindow().glWindow.setPointerVisible(true);
+        Game.getInstance().getGraphicsWindow().setPointerVisible(true);
         Cursor cursor = Game.getInstance().getGraphicsWindow().getCursor();
         if (cursor != null )
             cursor.getImage().setColor(new Color(cursor.getImage().getColor().r, cursor.getImage().getColor().g, cursor.getImage().getColor().b, 0));
@@ -231,11 +231,11 @@ public class InputHandler implements MouseListener,KeyListener
     {
 
         float x = location.x;       
-        float y = Game.getInstance().getGraphicsWindow().glWindow.getHeight() - location.y;
+        float y = Game.getInstance().getGraphicsWindow().getHeight() - location.y;
 
         //normalize to the aspect ratio       
-        float xfinal = x/ Game.getInstance().getGraphicsWindow().glWindow.getWidth() * Game.getInstance().getGraphicsWindow().getCurrentAspectRatio().x;
-        float yfinal = y/ Game.getInstance().getGraphicsWindow().glWindow.getHeight() * Game.getInstance().getGraphicsWindow().getCurrentAspectRatio().y;
+        float xfinal = x/ Game.getInstance().getGraphicsWindow().getWidth() * Game.getInstance().getGraphicsWindow().getCurrentAspectRatio().x;
+        float yfinal = y/ Game.getInstance().getGraphicsWindow().getHeight() * Game.getInstance().getGraphicsWindow().getCurrentAspectRatio().y;
 
         this.screenMouseLocation = new Point((int)xfinal,(int)yfinal);
         

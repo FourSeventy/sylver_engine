@@ -99,7 +99,7 @@ public class TextureLoader
     public void loadTexture(URI resourceURI, String identifier) 
     {                      
         //make the loading buffer context current
-        Game.getInstance().getGraphicsWindow().loadingBuffer.getContext().makeCurrent();
+        Game.getInstance().getGraphicsWindow().getOffscreenLoadingBuffer().getContext().makeCurrent();
         
         //load the texture from the resource
         Texture tex = new Texture(0);
@@ -133,7 +133,7 @@ public class TextureLoader
         finally
         {
             //release context
-            Game.getInstance().getGraphicsWindow().loadingBuffer.getContext().release();
+            Game.getInstance().getGraphicsWindow().getOffscreenLoadingBuffer().getContext().release();
         }    
         
     }
