@@ -121,21 +121,20 @@ public class OpenGLGameWindow implements GLEventListener
             Game.getInstance().getConfiguration().getEngineSettings().screenResolution.setHeight(currentScreenMode.getSurfaceSize().getResolution().getHeight()); 
         }
         
-        //set fullscreen
-        if(Game.getInstance().getConfiguration().getEngineSettings().fullScreen == true)
-            glWindow.setFullscreen(true);
-        
+                      
         //set size
         glWindow.setSize(Game.getInstance().getConfiguration().getEngineSettings().screenResolution.getWidth(), Game.getInstance().getConfiguration().getEngineSettings().screenResolution.getHeight());
         this.determineAspectRatio();
+
+        //set visible and set the screen size and fullscreen //!! ABSOLUTELY MUST SET VISIBLE BEFORE TOGGLE FULLSCREEN!!!
+        glWindow.setVisible(true); 
         
-        //set visible and set the screen size and fullscreen 
-        glWindow.setVisible(true);    
-        
-        
-        //set screen resolution
-        if(glWindow.isFullscreen())
-             this.setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);  
+        //set screen size  
+        this.setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);  
+
+        //set fullscreen 
+        if(Game.getInstance().getConfiguration().getEngineSettings().fullScreen == true)
+            this.toggleFullScreen(); 
         
         
         //set up loading buffer
