@@ -144,7 +144,7 @@ public class EngineSettings
             //return
             return settings;
         }
-        catch(IOException e)
+        catch(Exception e)
         {
             //log error to console
             Logger logger =Logger.getLogger(EngineSettings.class.getName());

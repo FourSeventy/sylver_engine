@@ -110,33 +110,49 @@ public class OpenGLGameWindow implements GLEventListener
         glWindow.setAlwaysOnTop(false);
         glWindow.setUpdateFPSFrames(10, null);
         glWindow.setPosition(10 , 30);
+                       
+        //local fullscreen variable
+        boolean isFullscreen = Game.getInstance().getConfiguration().getEngineSettings().fullScreen;
+        javax.media.nativewindow.util.Dimension screenResolution = Game.getInstance().getConfiguration().getEngineSettings().screenResolution;
+       
         
-        //if we dont have a screen resolution in our user settings, set a default one
-        if(Game.getInstance().getConfiguration().getEngineSettings().screenResolution.getWidth() == 0)
+        if(isFullscreen)
         {
-            Screen screen = glWindow.getScreen();
+            glWindow.setPosition(0, 0);
+            glWindow.setUndecorated(true);
+        }
+        
+        if(screenResolution.getWidth() != 0)
+        {
+           this.setDisplayResolution(screenResolution);
+        }
+
+        //set visible and set the screen size and fullscreen //!! ABSOLUTELY MUST SET VISIBLE BEFORE TOGGLE FULLSCREEN!!!
+        glWindow.setVisible(true); 
+       
+        //if we dont have a screen resolution in our user settings, set a default one
+        if(screenResolution.getWidth() == 0)
+        {
             //get our screen mode, and set the screen size 
             MonitorMode currentScreenMode = glWindow.getMainMonitor().getOriginalMode();
             Game.getInstance().getConfiguration().getEngineSettings().screenResolution.setWidth(currentScreenMode.getSurfaceSize().getResolution().getWidth());
             Game.getInstance().getConfiguration().getEngineSettings().screenResolution.setHeight(currentScreenMode.getSurfaceSize().getResolution().getHeight()); 
         }
         
-                      
-        //set size
-        glWindow.setSize(Game.getInstance().getConfiguration().getEngineSettings().screenResolution.getWidth(), Game.getInstance().getConfiguration().getEngineSettings().screenResolution.getHeight());
-        this.determineAspectRatio();
-
-        //set visible and set the screen size and fullscreen //!! ABSOLUTELY MUST SET VISIBLE BEFORE TOGGLE FULLSCREEN!!!
-        glWindow.setVisible(true); 
-        
-        //set screen size  
-        this.setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);  
-
+        this.setDisplayResolution(screenResolution);
+              
         //set fullscreen 
-        if(Game.getInstance().getConfiguration().getEngineSettings().fullScreen == true)
-            this.toggleFullScreen(); 
-        
-        
+        if(isFullscreen)
+        {          
+            this.toggleFullScreen();             
+            this.setVSync(Game.getInstance().getConfiguration().getEngineSettings().vSync);
+        }  
+        else
+        {
+          this.setVSync(false);
+        }
+
+     
         //set up loading buffer
         GLDrawableFactory glDrawableFactory = GLDrawableFactory.getFactory(glProfile);
         GLCapabilities glOffscreenCapabilities = new GLCapabilities(glProfile);
@@ -210,9 +226,7 @@ public class OpenGLGameWindow implements GLEventListener
 
     }
     
- 
-    
-    
+  
     //====================
     // GL Drawable Methods
     //====================
@@ -235,6 +249,9 @@ public class OpenGLGameWindow implements GLEventListener
         GL2 gl = drawable.getGL().getGL2();
         GLU glu = new GLU();
         
+        //determine aspect ratio
+        this.determineAspectRatio();
+        
         //initialize modelview matrix
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
@@ -256,15 +273,15 @@ public class OpenGLGameWindow implements GLEventListener
         //sets up bilinear texture filtering
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
         gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
-                 
-        // Enable VSync if we arent in fullscreen
-        if(!glWindow.isFullscreen())
-          gl.setSwapInterval(Game.getInstance().getConfiguration().getEngineSettings().vSync? 1: 0); 
-        
+                      
         //paint the screen black while system stuff loads
         gl.glClearColor(0, 0, 0, 1);
         gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);                   
         glWindow.swapBuffers();
+        
+        //clear both buffers
+        gl.glClearColor(0, 0, 0, 1);
+        gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT); 
     }
     
     //openGL display callback
@@ -466,12 +483,14 @@ public class OpenGLGameWindow implements GLEventListener
     {
         if(glWindow.isFullscreen())
         {
-            //switches to windowed mode and reverts the display device back to its original resolution
-            glWindow.setFullscreen(false);
-            glWindow.getMainMonitor().setCurrentMode(glWindow.getMainMonitor().getOriginalMode());
+            //switches to windowed mode and reverts the display device back to its original resolution               
+            glWindow.setFullscreen(false);  
+            glWindow.setUndecorated(false);
+            glWindow.setPosition(10, 30);
+            setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);
+            glWindow.getMainMonitor().setCurrentMode(glWindow.getMainMonitor().getOriginalMode());          
             this.setVSync(false);
-            glWindow.setSize(Game.getInstance().getConfiguration().getEngineSettings().screenResolution.getWidth(),Game.getInstance().getConfiguration().getEngineSettings().screenResolution.getHeight());
-                       
+                  
         }
         else
         {
@@ -529,15 +548,13 @@ public class OpenGLGameWindow implements GLEventListener
     {        
         //change the window size
         glWindow.setSize(resolution.getWidth(),resolution.getHeight());
-        
-        //if we are in fullscreen change the screen resolution dont do this if the size already matches the size of the screen
-        boolean sameSize = (glWindow.getMainMonitor().getOriginalMode().getRotatedHeight() == resolution.getHeight()) && (glWindow.getMainMonitor().getOriginalMode().getRotatedWidth() == resolution.getWidth());
-        if(glWindow.isFullscreen() == true && !sameSize)
+
+        if( glWindow.isRealized() && glWindow.isFullscreen() == true)
         {
             //get our screen mode
             Screen screen = glWindow.getScreen();
             MonitorMode currentMonitorMode = glWindow.getMainMonitor().getOriginalMode();
-            
+
             //filters screen modes
             ArrayList<MonitorMode> monitorModes = new ArrayList(screen.getMonitorModes());
             if(monitorModes.size()>1)  
@@ -547,7 +564,7 @@ public class OpenGLGameWindow implements GLEventListener
                 monitorModes = new ArrayList(MonitorModeUtil.filterByResolution(monitorModes, resolution)); 
                 monitorModes = new ArrayList(MonitorModeUtil.getHighestAvailableBpp(monitorModes));               
             } 
-            
+
             //set the monitor mode
             MonitorMode sm = (MonitorMode) monitorModes.get(0); 
             glWindow.getMainMonitor().setCurrentMode(sm); 
@@ -556,10 +573,6 @@ public class OpenGLGameWindow implements GLEventListener
             logger.log(Level.INFO, "Set to monitor mode: " + sm.toString());
         }
              
-        // Change aspect ratio right away
-        this.determineAspectRatio();
-        
-       
     }
        
     /**
