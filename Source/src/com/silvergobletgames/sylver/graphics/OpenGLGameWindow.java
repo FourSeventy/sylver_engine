@@ -285,66 +285,67 @@ public class OpenGLGameWindow implements GLEventListener
     //openGL display callback
     public void display(GLAutoDrawable glAutoDrawable) 
     {
-//         long start = System.nanoTime();    
-//        
-//                    //makes the glContext current
-//                    glWindow.getContext().makeCurrent();
-//
-//                    //gets the appropriate graphics context from the glWindow
-//                    GL2 gl;
-//                    if(glAutoDrawable.getGL().getGLProfile().isGL4bc())
-//                        gl = glAutoDrawable.getGL().getGL4bc();
-//                    else if(glAutoDrawable.getGL().getGLProfile().isGL3bc())
-//                        gl = glAutoDrawable.getGL().getGL3bc();
-//                    else
-//                        gl = glAutoDrawable.getGL().getGL2();              
-//
-//                    //clears the frame buffer
-//                    gl.glClearColor(0, 0, 0, 1);
-//                    gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
-//                        
-//                    //tells the scene to render itself
-//                    if (sceneToRender != null) 
-//                    {
-//                        sceneToRender.render(gl);                
-//                    }
-//
-//                    //reconfigures matrices for cursor draw
-//                    Point aspectRatio = getCurrentAspectRatio();
-//                    gl.glMatrixMode(GL3bc.GL_PROJECTION);
-//                    gl.glLoadIdentity();
-//                    GLU glu = new GLU();
-//                    glu.gluOrtho2D(0.0, aspectRatio.x, 0.0, aspectRatio.y);
-//
-//                    gl.glMatrixMode(GL3bc.GL_MODELVIEW);
-//                    gl.glLoadIdentity();
-//                    glu.gluLookAt(0, 0, 1, 0, 0, 0, 0, 1, 0);
-//
-//                    //Draw cursor
-//                    if(cursor != null)
-//                    {
-//                        cursor.getImage().update();
-//                        cursor.getImage().setPositionAnchored(Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().x, Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().y);
-//                        cursor.getImage().draw(gl);
-//                    }
-//
-//                    //Save the last render time before we call swap
-//                    OpenGLGameWindow.lastRenderTime = System.nanoTime() - start; 
-//                    boolean profileRendering = Game.getInstance().getConfiguration().getEngineSettings().profileRendering;
-//                    if( profileRendering== true)
-//                    {
-//                        //log times
-//                        System.err.println( "Total Render Time: " +lastRenderTime);
-//                    }
-//
-//                   //flushes pending openGL commands from the context, !!needs to be here!!
-//                   gl.glFlush();
-//                   
-//                   //swaps the back buffer !!needs to be here!!
-//                   glWindow.swapBuffers();
-//                   
-//                   //releases the glContext
-//                   glWindow.getContext().release();                 
+              long start = System.nanoTime();    
+        
+                    //makes the glContext current
+                    glWindow.getContext().makeCurrent();
+
+                    //gets the appropriate graphics context from the glWindow
+                    GL2 gl;
+                    if(glAutoDrawable.getGL().getGLProfile().isGL4bc())
+                        gl = glAutoDrawable.getGL().getGL4bc();
+                    else if(glAutoDrawable.getGL().getGLProfile().isGL3bc())
+                        gl = glAutoDrawable.getGL().getGL3bc();
+                    else
+                        gl = glAutoDrawable.getGL().getGL2();              
+
+                    //clears the frame buffer
+                    gl.glClearColor(0, 0, 0, 1);
+                    gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
+                        
+                    //tells the scene to render itself
+                    if (sceneToRender != null) 
+                    {
+                        sceneToRender.render(gl);                
+                    }
+
+                    //reconfigures matrices for cursor draw
+                    Point aspectRatio = getCurrentAspectRatio();
+                    gl.glMatrixMode(GL3bc.GL_PROJECTION);
+                    gl.glLoadIdentity();
+                    GLU glu = new GLU();
+                    glu.gluOrtho2D(0.0, aspectRatio.x, 0.0, aspectRatio.y);
+
+                    gl.glMatrixMode(GL3bc.GL_MODELVIEW);
+                    gl.glLoadIdentity();
+                    glu.gluLookAt(0, 0, 1, 0, 0, 0, 0, 1, 0);
+
+                    //Draw cursor
+                    if(cursor != null)
+                    {
+                        cursor.getImage().update();
+                        cursor.getImage().setPositionAnchored(Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().x, Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().y);
+                        cursor.getImage().draw(gl);
+                    }
+
+                    //Save the last render time before we call swap
+                    OpenGLGameWindow.lastRenderTime = System.nanoTime() - start; 
+                    boolean profileRendering = Game.getInstance().getConfiguration().getEngineSettings().profileRendering;
+                    if( profileRendering== true)
+                    {
+                        //log times
+                        System.err.println( "Total Render Time: " +lastRenderTime);
+                    }
+
+                   //flushes pending openGL commands from the context, !!needs to be here!!
+                   gl.glFlush();
+                   
+                   //swaps the back buffer !!needs to be here!!
+                   glWindow.swapBuffers();
+                   
+                   //releases the glContext
+                   glWindow.getContext().release();                 
+                                  
                                 
     }
 
@@ -434,76 +435,8 @@ public class OpenGLGameWindow implements GLEventListener
     {
         sceneToRender = s;
        
-        glWindow.invoke(true, new GLRunnable() {
+        glWindow.display();
             
-                @Override
-                public boolean run(final GLAutoDrawable glAutoDrawable)
-                {
-  
-                    long start = System.nanoTime();    
-        
-                    //makes the glContext current
-                    glWindow.getContext().makeCurrent();
-
-                    //gets the appropriate graphics context from the glWindow
-                    GL2 gl;
-                    if(glAutoDrawable.getGL().getGLProfile().isGL4bc())
-                        gl = glAutoDrawable.getGL().getGL4bc();
-                    else if(glAutoDrawable.getGL().getGLProfile().isGL3bc())
-                        gl = glAutoDrawable.getGL().getGL3bc();
-                    else
-                        gl = glAutoDrawable.getGL().getGL2();              
-
-                    //clears the frame buffer
-                    gl.glClearColor(0, 0, 0, 1);
-                    gl.glClear(GL3bc.GL_COLOR_BUFFER_BIT);
-                        
-                    //tells the scene to render itself
-                    if (sceneToRender != null) 
-                    {
-                        sceneToRender.render(gl);                
-                    }
-
-                    //reconfigures matrices for cursor draw
-                    Point aspectRatio = getCurrentAspectRatio();
-                    gl.glMatrixMode(GL3bc.GL_PROJECTION);
-                    gl.glLoadIdentity();
-                    GLU glu = new GLU();
-                    glu.gluOrtho2D(0.0, aspectRatio.x, 0.0, aspectRatio.y);
-
-                    gl.glMatrixMode(GL3bc.GL_MODELVIEW);
-                    gl.glLoadIdentity();
-                    glu.gluLookAt(0, 0, 1, 0, 0, 0, 0, 1, 0);
-
-                    //Draw cursor
-                    if(cursor != null)
-                    {
-                        cursor.getImage().update();
-                        cursor.getImage().setPositionAnchored(Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().x, Game.getInstance().getInputHandler().getInputSnapshot().getScreenMouseLocation().y);
-                        cursor.getImage().draw(gl);
-                    }
-
-                    //Save the last render time before we call swap
-                    OpenGLGameWindow.lastRenderTime = System.nanoTime() - start; 
-                    boolean profileRendering = Game.getInstance().getConfiguration().getEngineSettings().profileRendering;
-                    if( profileRendering== true)
-                    {
-                        //log times
-                        System.err.println( "Total Render Time: " +lastRenderTime);
-                    }
-
-                   //flushes pending openGL commands from the context, !!needs to be here!!
-                   gl.glFlush();
-                   
-                   //swaps the back buffer !!needs to be here!!
-                   glWindow.swapBuffers();
-                   
-                   //releases the glContext
-                   glWindow.getContext().release();                 
-                                      
-                    return true;
-                }
-            });       
         
     }
     
