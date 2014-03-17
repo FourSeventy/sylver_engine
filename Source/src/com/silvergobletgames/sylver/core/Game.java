@@ -169,6 +169,22 @@ public final class Game
             //check to see if createGame() was called first
             if(this.gameConfiguration == null)
                 throw new RuntimeException("Game must be created before you can call gameLoop()");
+            
+            //enable high resolution timing
+            //this is critical for the timing of the game loop
+            new Thread() {
+            { this.setDaemon(true); this.start(); }
+            public void run() {
+                    while(true) {
+                        try {
+                            Thread.sleep(Integer.MAX_VALUE);
+                        }
+                        catch(InterruptedException ex) {
+                        }
+                    }
+            }
+        };
+            
 
             //infinite loop
             while (gameRunning)
