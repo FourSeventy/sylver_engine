@@ -159,6 +159,61 @@ public class OpenGLGameWindow implements GLEventListener
         GLCapabilitiesChooser glcc = new DefaultGLCapabilitiesChooser(); 
         GLOffscreenAutoDrawable offscreenDrawable = glDrawableFactory.createOffscreenAutoDrawable(glDrawableFactory.getDefaultDevice(),glWindow.getChosenGLCapabilities() , glcc, 800, 600,glWindow.getContext()); 
         offscreenLoadingBuffer = offscreenDrawable;
+        
+        //attach fakey animator to ignore repaint events
+       glWindow.setAnimator(new AnimatorBase(){
+           {
+               
+           }
+           @Override
+           public boolean isStarted()
+           {
+               return true;
+           }
+           
+           @Override
+           public boolean isAnimating()
+           {
+               return true;
+           }
+           
+           @Override
+           public boolean start()
+           {
+               return true;
+           }
+
+            @Override
+            protected String getBaseName(String string)
+            {
+              return "animator";
+            }
+
+            @Override
+            public boolean isPaused()
+            {
+              return false;
+            }
+
+            @Override
+            public boolean stop()
+            {
+              return true;
+            }
+
+            @Override
+            public boolean pause()
+            {
+                return true;
+            }
+
+            @Override
+            public boolean resume()
+            {
+                return true;
+            }
+       });      
+       glWindow.getAnimator().start();
 
     }
     
