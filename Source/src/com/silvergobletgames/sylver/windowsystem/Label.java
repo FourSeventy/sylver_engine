@@ -13,7 +13,7 @@ import javax.media.opengl.GL3bc;
 public class Label extends WindowComponent {
     
     private Text text;
-    
+    private boolean dontSetTextPosition = false;
     
     //================
     // Constructors
@@ -25,6 +25,7 @@ public class Label extends WindowComponent {
         
         this.text = new Text(text);
         this.text.setPosition(x, y);
+
     }
     
     public Label(Text text, float x, float y)
@@ -32,7 +33,21 @@ public class Label extends WindowComponent {
         super(x,y);
         
         this.text =text;
-        this.text.setPosition(x, y);
+        this.text.setPosition(x, y);      
+        this.width = text.getWidth();
+        this.height = text.getHeight();
+    }
+    
+    public Label(Text text, float x, float y, boolean dontSetTextPosition)
+    {
+        super(x,y);
+        
+        this.text =text;
+        this.dontSetTextPosition = dontSetTextPosition;
+         if(!this.dontSetTextPosition)
+        {
+            this.text.setPosition(x, y);
+        }      
         this.width = text.getWidth();
         this.height = text.getHeight();
     }
@@ -60,7 +75,16 @@ public class Label extends WindowComponent {
     public void setPosition(float x, float y)
     {
         super.setPosition(x,y);
-        this.text.setPosition(x, y);
+        
+        if(!this.dontSetTextPosition)
+        {
+            this.text.setPosition(x, y);
+        }
+    }
+    
+    public void setDontSetTextPosition(boolean value)
+    {
+        this.dontSetTextPosition = value;
     }
     
     

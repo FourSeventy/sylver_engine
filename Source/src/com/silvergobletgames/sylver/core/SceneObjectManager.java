@@ -58,6 +58,13 @@ public class SceneObjectManager
      */
     public void add(SceneObject sceneObject, Layer layer) 
     {
+        
+        //validate parameters
+        if( sceneObject == null || layer == null)
+        {
+            return;
+        }
+        
         //adds it to the master list
         sceneObjects.put(sceneObject.getID(), sceneObject);
                
@@ -90,8 +97,15 @@ public class SceneObjectManager
         //remove from its groupings
         LinkedHashSet<Enum> eGroups = sceneObject.getGroups();
         Iterator<Enum> iter = eGroups.iterator();
-        while (iter.hasNext()) {
-            sceneObjectGroupMap.get(iter.next()).remove(sceneObject);
+        while (iter.hasNext())
+        {
+            
+            LinkedHashSet<SceneObject> group =sceneObjectGroupMap.get(iter.next());
+            if(group != null)
+            {
+                group.remove(sceneObject);
+            }
+            
         }
         
         //remove from layer mapping
