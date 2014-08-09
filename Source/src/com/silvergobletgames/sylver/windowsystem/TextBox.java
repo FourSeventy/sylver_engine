@@ -21,14 +21,18 @@ public class TextBox extends WindowComponent {
        
     //background
     private Image background;
+    private boolean hideBackground = false;
     
     //cursor
     private Image cursor;
     private long cursorBlink = 0;
     private boolean cursorDraw = false;
     
+    
     //text
     private Text text; 
+    private int maxCharacters = 100;
+    private boolean alphaNumericOnly = false;
     
     private String lastText;
     
@@ -73,6 +77,15 @@ public class TextBox extends WindowComponent {
         this.lastText = string;
     }
 
+    public TextBox(Text text, float x, float y)
+    {
+        this(x,y);
+        this.text = text;
+        
+        this.lastText = text.toString();
+    }
+    
+    
     //======================
     // SceneObject Methods
     //======================
@@ -82,7 +95,10 @@ public class TextBox extends WindowComponent {
         if(!hidden)
         {
             //draw background image
-            this.background.draw(gl);
+            if(!this.hideBackground)
+            {
+                this.background.draw(gl);
+            }
             
             //draw text
            text.draw(gl);
@@ -145,12 +161,26 @@ public class TextBox extends WindowComponent {
                         if(c == '\b')
                         {
                             if(builder.length()> 0)
+                            {
                                 builder = builder.substring(0,builder.length() -1);
+                            }
                             if(text.toString().length() > 0)
+                            {
                                 text.setText(text.toString().substring(0,text.toString().length() -1));
+                            }
                         }
-                        else
+                        else if(text.toString().length() < this.maxCharacters)
                         {
+                            //check for alphanumeric
+                            if(this.alphaNumericOnly)
+                            {
+
+                                int asciiCode = (int)c;
+                                if(!((asciiCode>= 48 && asciiCode <= 57) ||(asciiCode >=65 && asciiCode <=90) || (asciiCode >= 97 && asciiCode <= 122) || (asciiCode == 95) || (asciiCode == 45) || (asciiCode == 33) || (asciiCode == 64)) )
+                                {
+                                    continue;
+                                }
+                            }
                            builder += c;
                         }
                     }
@@ -183,10 +213,30 @@ public class TextBox extends WindowComponent {
         text.setText(string);
     }
     
+    public void setHideBackground(boolean value)
+    {
+        this.hideBackground = value;
+    }
+    
+    public void setMaxCharacters(int maxCharacters)
+    {
+        this.maxCharacters = maxCharacters;
+    }
+    
+    public void setAlphaNumericRestriction(boolean value)
+    {
+        this.alphaNumericOnly = value;
+    }
+    
     public void setDimensions(float x, float y){
         this.width = x;
         this.height = y;
         this.background.setDimensions(x, y);
+    }
+    
+    public void setCursorScale(float scale)
+    {
+        this.cursor.setScale(scale);
     }
     
     public String getText(){
