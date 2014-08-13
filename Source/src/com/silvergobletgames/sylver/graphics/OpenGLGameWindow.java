@@ -814,7 +814,7 @@ public class OpenGLGameWindow implements GLEventListener
         Graphics2D java2d = ( Graphics2D)( bufferedImage.createGraphics());
               
         //DEFAULT
-        Font font = new Font("CALIBRI", Font.BOLD, 24);
+        Font font = new Font("CALIBRI", Font.BOLD, 26);
         TextRenderer def = new TextRenderer(font, true, true, new SylverRenderDelegate());
         def.setUseVertexArrays(false);
         FontMetrics fm = java2d.getFontMetrics(font);
@@ -822,8 +822,8 @@ public class OpenGLGameWindow implements GLEventListener
         textRenderers.put(CoreTextType.DEFAULT, def);
  
         //MENU
-        font = new Font("CALIBRI", Font.BOLD, 96);
-        TextRenderer menu = new TextRenderer(font, true, true,new SylverRenderDelegate(true,3));
+        font = new Font("CALIBRI", Font.BOLD, 85);
+        TextRenderer menu = new TextRenderer(font, true, true,new SylverRenderDelegate(false,0));
         menu.setUseVertexArrays(false);
         fm = java2d.getFontMetrics(font);
         fontMetricsMap.put(CoreTextType.MENU, fm);
