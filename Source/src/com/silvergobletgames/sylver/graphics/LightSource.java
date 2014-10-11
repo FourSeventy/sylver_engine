@@ -672,7 +672,7 @@ public class LightSource extends NetworkedSceneObject implements SavableSceneObj
         light.setDirection(dir);
         light.setConicalRadius(radius);
         light.intensity = intensity;
-        light.color = new Color(r,b,g,1);
+        light.color = new Color(r,g,b,1);
         return (SceneObject)light;
     }
     

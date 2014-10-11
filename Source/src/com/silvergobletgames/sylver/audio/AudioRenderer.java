@@ -224,7 +224,7 @@ public class AudioRenderer {
                             Game.getInstance().getAudioRenderer().getSoundSystem().quickPlay(sound.priority, resolvedPath,sound.ref, false, Game.getInstance().getAudioRenderer().getSoundSystem().getListenerData().position.x, Game.getInstance().getAudioRenderer().getSoundSystem().getListenerData().position.y, 0, SoundSystemConfig.ATTENUATION_NONE, 0);
                     
                     }
-                    catch (URISyntaxException | MalformedURLException ex)
+                    catch (Exception ex)
                     {
                         //log error to console
                         Logger logger =Logger.getLogger(AudioRenderer.class.getName());
@@ -252,7 +252,7 @@ public class AudioRenderer {
                             Game.getInstance().getAudioRenderer().getSoundSystem().play(name);
                         }
                     }
-                    catch (URISyntaxException| MalformedURLException ex)
+                    catch (Exception ex)
                     {
                         //log error to console
                         Logger logger =Logger.getLogger(AudioRenderer.class.getName());
@@ -274,7 +274,7 @@ public class AudioRenderer {
                         if(true)
                             Game.getInstance().getAudioRenderer().getSoundSystem().backgroundMusic("BGM", resolvedPath,relativePath.toString(), true);
                     }
-                    catch (URISyntaxException | MalformedURLException ex)
+                    catch (Exception ex)
                     {
                         //log error to console
                         Logger logger =Logger.getLogger(AudioRenderer.class.getName());
@@ -294,7 +294,7 @@ public class AudioRenderer {
                         if(true)
                             Game.getInstance().getAudioRenderer().getSoundSystem().fadeOutIn("BGM", resolvedPath,relativePath.toString(),(long)sound.outmillis, (long)sound.inmillis);
                     }
-                    catch(URISyntaxException | MalformedURLException ex)
+                    catch(Exception ex)
                     {
                         //log error to console
                         Logger logger =Logger.getLogger(AudioRenderer.class.getName());
