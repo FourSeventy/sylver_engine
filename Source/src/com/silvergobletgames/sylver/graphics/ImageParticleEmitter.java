@@ -1,6 +1,7 @@
 package com.silvergobletgames.sylver.graphics;
 
 import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.TextureCoords;
 import com.silvergobletgames.sylver.core.SceneObject;
 import com.silvergobletgames.sylver.graphics.ConcreteParticleEmitters.SparkEmitter;
 import com.silvergobletgames.sylver.netcode.SceneObjectRenderData;
@@ -21,6 +22,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
 
     //Texture to draw particles with
     protected Image image; 
+    protected float particleRotation;
 
 
     //========================
@@ -82,6 +84,8 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
             //clamp the texture
             Texture texture = image.getTexture();
             texture.bind(gl2);
+            
+            
 
             //render all the particles
             LinkedHashSet<Particle> updateList = new LinkedHashSet(particles);
@@ -100,32 +104,51 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
                     y += this.getPosition().y - particle.originalEmitterPosition.y;
                 }
                 
+                //Rotate
+                gl2.glMatrixMode(GL2.GL_MODELVIEW);
+                gl2.glPushMatrix();
+                gl2.glTranslatef( x + drawWidth/2, y+drawWidth/2, 0.0f);
+                gl2.glRotatef(this.particleRotation, 0.0f, 0.0f, 1.0f);
+                gl2.glTranslatef(-(x + drawWidth/2), -(y+drawWidth/2), 0.0f);
+                
                 //bind the draw color
                 drawColor.bind(gl2);
+                
+                TextureCoords coords = texture.getImageTexCoords();
+                float textureBottom = coords.bottom();
+                float textureTop = coords.top();
+                float textureLeft = coords.left();
+                float textureRight = coords.right();               
 
                 //draw the image
                 gl2.glBegin(GL2.GL_QUADS);
                 {
                     //bottom left
-                    gl2.glTexCoord2d(0, 1);
+                    gl2.glTexCoord2d(textureLeft, textureBottom);
                     gl2.glVertex2f(x - drawWidth/2, y - drawHeight/2); 
 
                     //bottom right
-                    gl2.glTexCoord2d(1, 1);
+                    gl2.glTexCoord2d(textureRight, textureBottom);
                     gl2.glVertex2f(x + drawWidth/2, y - drawHeight/2);  
 
                     //top right
-                    gl2.glTexCoord2d(1, 0);
+                    gl2.glTexCoord2d(textureRight, textureTop);
                     gl2.glVertex2f(x + drawWidth/2, y + drawHeight/2);  
 
                     //top left    
-                    gl2.glTexCoord2d(0, 0);
+                    gl2.glTexCoord2d(textureLeft, textureTop);
                     gl2.glVertex2f(x - drawWidth/2, y + drawHeight/2);          
                 }
                 gl2.glEnd();    
+                
+                //pop matrix from rotation transform
+                gl2.glPopMatrix();
             }
 
 
+            
+            
+            
             //reset bound color to white
             Color.white.bind(gl2);
 
@@ -156,10 +179,31 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         returnEmitter.setImage(this.image.copy());
         returnEmitter.setRelativePositioning(this.isRelativePositioning()); 
         returnEmitter.setParticlesPerFrame(this.getParticlesPerFrame());
+        returnEmitter.setParticleRotation(this.getParticleRotation());
         if(this.isStopped())
+        {
             returnEmitter.stopEmittingThenRemove();
+        }
         
         return returnEmitter;
+    }
+    
+    /**
+     * gets the angle that particles will be rotated by.
+     * @return 
+     */
+    public float getParticleRotation()
+    {
+        return this.particleRotation;
+    }
+    
+    /**
+     * sets the angle that particles will be rotated by.
+     * @param angle 
+     */
+    public void setParticleRotation(float angle)
+    {
+        this.particleRotation = angle;
     }
     
     
@@ -181,6 +225,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         renderData.data.add(6,this.image.getTextureReference());
         renderData.data.add(7,this.getAngle());
         renderData.data.add(8,this.isRelativePositioning());
+        renderData.data.add(9,this.getParticleRotation());
         
         return renderData;
     }
@@ -212,6 +257,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         emitter.setID(renderData.getID());
         emitter.setAngle((float)renderData.data.get(7));
         emitter.setRelativePositioning((boolean)renderData.data.get(8)); 
+        emitter.setParticleRotation((float)renderData.data.get(9)); 
         
         return emitter;
     }
@@ -251,7 +297,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         ArrayList rawData = new ArrayList();
         rawData.addAll(Arrays.asList(renderDataChanges.data));       
         ArrayList changeData = new ArrayList();
-        for(int i = 0; i <9; i ++)
+        for(int i = 0; i <10; i ++)
         {
             // The bit was set
             if ((fieldMap & (1L << i)) != 0)
@@ -300,6 +346,11 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         {
             this.setRelativePositioning((boolean)changeData.get(8));
         }
+        
+        if(changeData.get(9) != null)
+        {
+            this.setParticleRotation((float)changeData.get(9));
+        }
     }
     
     public void interpolate(long currentTime)
@@ -339,6 +390,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         saved.dataMap.put("duration", this.getDuration());
         saved.dataMap.put("particles", this.getParticlesPerFrame());
         saved.dataMap.put("angle",this.getAngle());
+        saved.dataMap.put("rotation",this.getParticleRotation());
         
         return saved;
     }
@@ -372,6 +424,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         float y = (Float)saved.dataMap.get("y");
         int ttl = (Integer)saved.dataMap.get("duration");
         float ppf = (Float)saved.dataMap.get("particles");
+        float rotation = (Float)saved.dataMap.get("rotation");
         
         float angle = 90;
         if(saved.dataMap.containsKey("angle")) //TODO get rid of
@@ -396,6 +449,7 @@ public abstract class ImageParticleEmitter extends AbstractParticleEmitter
         emitter.setParticlesPerFrame(ppf);
         emitter.setImage(new Image(ref));
         emitter.setAngle(angle);
+        emitter.setParticleRotation(rotation);
         
         return (SceneObject)emitter;
     }
