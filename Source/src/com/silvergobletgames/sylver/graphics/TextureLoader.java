@@ -16,6 +16,8 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,10 +103,12 @@ public class TextureLoader
         //make the loading buffer context current
         Game.getInstance().getGraphicsWindow().getOffscreenLoadingBuffer().getContext().makeCurrent();
         
-        //load the texture from the resource
-        Texture tex = new Texture(0);
+        //load the texture from the resource     
         try 
-        {         
+        {      
+            //initialize texture variable
+            Texture tex = null;
+            
             //gets the filename from the path
             String resourceRef = resourceURI.toString();
                     
@@ -138,12 +142,60 @@ public class TextureLoader
         
     }
     
+    public void loadTextureBatch(ArrayList<SimpleEntry<URI,String>> batch)
+    {
+        //bind context
+        Game.getInstance().getGraphicsWindow().getOffscreenLoadingBuffer().getContext().makeCurrent();
+        
+        //iterate over batch
+        for(SimpleEntry<URI,String> entry : batch)
+        {
+            URI resourceURI = entry.getKey();
+            String identifier = entry.getValue();
+        
+            //load the texture from the resource     
+            try 
+            {      
+                //initialize texture variable
+                Texture tex = null;
+
+                //gets the filename from the path
+                String resourceRef = resourceURI.toString();
+
+                //make the correct call to textureIO based on the file extension
+                if(resourceRef.endsWith(".png"))           
+                    tex = TextureIO.newTexture(resourceURI.toURL(), false, TextureIO.PNG);           
+                else if(resourceRef.endsWith(".jpg"))           
+                    tex = TextureIO.newTexture(resourceURI.toURL(), false, TextureIO.JPG);
+                else if(resourceRef.endsWith(".gif"))
+                    tex = TextureIO.newTexture(resourceURI.toURL(), false, TextureIO.GIF);
+                else if(resourceRef.endsWith(".tga"))
+                    tex = TextureIO.newTexture(resourceURI.toURL(), false, TextureIO.TGA);
+
+
+                //store the texture in the map with the filename as the key
+                loadedTextures.put(identifier, tex);
+
+            } 
+            catch (Exception e) 
+            { 
+                //log error to console
+                Logger logger =Logger.getLogger(TextureLoader.class.getName());
+                logger.log(Level.SEVERE, "Error Loading Texture: " + resourceURI.toString() + " : " + e.getMessage(),e);
+
+            }
+        }
+        
+        //release context
+        Game.getInstance().getGraphicsWindow().getOffscreenLoadingBuffer().getContext().release();
+    }
+    
     /**
      * Loads all textures located in the directory specified by the URI. Works for a URI pointing to a location inside a .jar, or on disk
      * @param directoryURI URI pointing to a directory of textures
      * @throws IOException 
      */
-    public void loadAllTextures(URI directoryURI) throws IOException 
+    public void loadAllTexturesInDirectory(URI directoryURI) throws IOException 
     {    
             
         //open url connection
@@ -159,6 +211,9 @@ public class TextureLoader
             
             //get the directory name
             String textureDirectory = jarUrlConnection.getJarEntry().getName();
+            
+            //build batch variable
+            final ArrayList<SimpleEntry<URI,String>> batch = new ArrayList<>();
             
             //iterate through the jar file
             Enumeration<JarEntry> entries = jarUrlConnection.getJarFile().entries();
@@ -179,9 +234,9 @@ public class TextureLoader
                            
                             String[] parts = jarEntry.getName().split("/");  
                             String filename = parts[parts.length - 1].toLowerCase();
-                    
-                            loadTexture(this.getClass().getClassLoader().getResource(jarEntry.getName()).toURI(),filename);   
-                         
+                     
+                            SimpleEntry<URI,String> entry = new SimpleEntry<>(this.getClass().getClassLoader().getResource(jarEntry.getName()).toURI(),filename); 
+                            batch.add(entry);
                         }
                         catch(URISyntaxException e)
                         {
@@ -193,12 +248,17 @@ public class TextureLoader
                     }
                 }
             }
+            
+            this.loadTextureBatch(batch);
 
         } 
         else //if(urlConnection instanceof FileURLConnection) 
         {        
             //get the Path
             Path resourcePath = Paths.get(directoryURI);
+            
+            //build batch variable
+            final ArrayList<SimpleEntry<URI,String>> batch = new ArrayList<>();
             
             //walk the file tree
             Files.walkFileTree(resourcePath, new SimpleFileVisitor<Path>(){
@@ -209,14 +269,20 @@ public class TextureLoader
                     //get file name
                     String fileName = file.getFileName().toString().toLowerCase();
                     
+                    
                     //load texture
                     if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".gif") || fileName.endsWith(".tga")) 
-                        loadTexture(file.toUri(),fileName); 
+                    {
+                        SimpleEntry<URI,String> entry = new SimpleEntry<>(file.toUri(),fileName); 
+                        batch.add(entry);
+                    }
                     
                     return FileVisitResult.CONTINUE;
                 }
             
             });
+            
+            this.loadTextureBatch(batch);
           
         }       
         
