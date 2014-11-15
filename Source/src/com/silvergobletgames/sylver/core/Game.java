@@ -387,7 +387,15 @@ public final class Game
      */
     public Scene getCurrentScene() 
     {
-        return scenes.get(currentScene);
+        try
+        {
+            return scenes.get(currentScene);
+        }
+        catch(NullPointerException e)
+        {
+            return null;
+        }
+                
     }
     
     /**
