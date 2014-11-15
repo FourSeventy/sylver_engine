@@ -793,7 +793,7 @@ public class OpenGLGameWindow implements GLEventListener
         URL textureURL = OpenGLGameWindow.class.getClassLoader().getResource("com/silvergobletgames/sylver/systemtextures");
         try
         {
-            Game.getInstance().getAssetManager().getTextureLoader().loadAllTextures(textureURL.toURI());
+            Game.getInstance().getAssetManager().getTextureLoader().loadAllTexturesInDirectory(textureURL.toURI());
         }
         catch (IOException |URISyntaxException ex)
         {
