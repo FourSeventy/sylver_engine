@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -37,7 +38,7 @@ public class TextureLoader
 {
 
     // The map of textures that have been loaded in this loader
-    private HashMap<String, Texture> loadedTextures = new HashMap();
+    private ConcurrentHashMap<String, Texture> loadedTextures = new ConcurrentHashMap();
 
     
     //==============

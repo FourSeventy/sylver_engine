@@ -35,6 +35,9 @@ public final class Game
     
     //map of runnables that the game can also manage
     private ConcurrentHashMap<String,Runnable> runnableMap = new ConcurrentHashMap<>();
+    
+    //Map of game state that can be freely used
+    private ConcurrentHashMap<String,Object> stateVariables = new ConcurrentHashMap<>();
 
     //event queue for scene changes etc
     private ConcurrentLinkedQueue<SceneAction> sceneActionQueue = new ConcurrentLinkedQueue<>();
@@ -387,7 +390,15 @@ public final class Game
      */
     public Scene getCurrentScene() 
     {
-        return scenes.get(currentScene);
+        try
+        {
+            return scenes.get(currentScene);
+        }
+        catch(NullPointerException e)
+        {
+            return null;
+        }
+                
     }
     
     /**
@@ -449,6 +460,25 @@ public final class Game
         this.runnableMap.remove(key);
     }
     
+    /**
+     * Sets a general purpose game state variable that is thread safe and can be accesesd globally.
+     * @param key Key for state variable
+     * @param value Value state for variable
+     */
+    public void setStateVariable(String key, Object value)
+    {
+        this.stateVariables.put(key, value);
+    }
+    
+    /**
+     * Gets the value of a general purpose game state variable that is thread safe and can be accesesd globally.
+     * @param key Key for state variable
+     * @return Object
+     */
+    public Object getStateVariable(String key)
+    {
+        return this.stateVariables.get(key);
+    }
     
     //==================
     // Class Methods
