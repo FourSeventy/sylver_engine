@@ -539,13 +539,15 @@ public class OpenGLGameWindow implements GLEventListener
             setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);
             glWindow.getMainMonitor().setCurrentMode(glWindow.getMainMonitor().getOriginalMode());          
             this.setVSync(false);
+            this.glWindow.confinePointer(false);
                   
         }
         else
         {
             //switches to fullscreen mode and sets the display device to the correct resolution
             glWindow.setFullscreen(true);        
-            setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);  
+            setDisplayResolution(Game.getInstance().getConfiguration().getEngineSettings().screenResolution);
+            this.glWindow.confinePointer(true);
         }     
     }
     
