@@ -15,11 +15,13 @@ public class Sound
     public float x;
     public float y;
    
+    public String name = "";
     public boolean priority = false;
     public float pitchValue =1;
     public float volume = 1;
     public float inmillis;
     public float outmillis;
+    public boolean loop = false;
 
     public static enum SoundType{
             PlayAmbient, PlayLocation, NewBGM, BGMFadeInOut, AdjustSourceVolume          
@@ -110,6 +112,30 @@ public class Sound
             sound.priority = priority;
             sound.volume = volume;
             sound.pitchValue = pitch;
+            return sound;
+        }
+        
+        /**
+         * Constructs a sound that will play at the given location
+         * @param ref path of the sound that is relative to the path registered in GameConfiguration
+         * @param x x position
+         * @param y y position
+         * @param priority if this sound has priority
+         * @param volume the volume this will play at
+         * @param pitch the pitch this will play at
+         * @return 
+         */
+        public static Sound locationSound(String ref, float x, float y, boolean priority, float volume, float pitch, boolean loop)
+        {
+            Sound sound = new Sound();
+            sound.ref = ref;
+            sound.x = x;
+            sound.y = y;
+            sound.type = SoundType.PlayLocation;
+            sound.priority = priority;
+            sound.volume = volume;
+            sound.pitchValue = pitch;
+            sound.loop = loop;
             return sound;
         }
 

@@ -244,12 +244,15 @@ public class AudioRenderer {
                         
                         if(true)
                         {
-                            String name =UUID.randomUUID().toString();
-                            Game.getInstance().getAudioRenderer().getSoundSystem().newSource(false, name, resolvedPath, relativePath.toString(), false, sound.x, sound.y, 0, SoundSystemConfig.ATTENUATION_ROLLOFF, SoundSystemConfig.getDefaultRolloff());
-                            Game.getInstance().getAudioRenderer().getSoundSystem().setVolume(name, sound.volume);
-                            Game.getInstance().getAudioRenderer().getSoundSystem().setPitch(name, sound.pitchValue);
-                            Game.getInstance().getAudioRenderer().getSoundSystem().setTemporary(name, true);
-                            Game.getInstance().getAudioRenderer().getSoundSystem().play(name);
+                            if(sound.name.equals(""))
+                            {
+                               sound.name =UUID.randomUUID().toString();
+                            }
+                            Game.getInstance().getAudioRenderer().getSoundSystem().newSource(false, sound.name, resolvedPath, relativePath.toString(), sound.loop, sound.x, sound.y, 0, SoundSystemConfig.ATTENUATION_ROLLOFF, SoundSystemConfig.getDefaultRolloff());
+                            Game.getInstance().getAudioRenderer().getSoundSystem().setVolume(sound.name, sound.volume);
+                            Game.getInstance().getAudioRenderer().getSoundSystem().setPitch(sound.name, sound.pitchValue);
+                            Game.getInstance().getAudioRenderer().getSoundSystem().setTemporary(sound.name, true);
+                            Game.getInstance().getAudioRenderer().getSoundSystem().play(sound.name);
                         }
                     }
                     catch (Exception ex)
@@ -333,7 +336,7 @@ public class AudioRenderer {
     // Private Methods
     //==================
     
-    private SoundSystem getSoundSystem()
+    public SoundSystem getSoundSystem()
     {
         return this.soundSystem;
     }
