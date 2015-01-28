@@ -151,13 +151,16 @@ public class OpenGLGameWindow implements GLEventListener
         }
 
      
-        //set up loading buffer
+        //set up loading buffer      
         GLDrawableFactory glDrawableFactory = GLDrawableFactory.getFactory(glProfile);
         GLCapabilities glOffscreenCapabilities = new GLCapabilities(glProfile);
         glOffscreenCapabilities.setOnscreen(false);
+        glOffscreenCapabilities.setFBO(false);
         glOffscreenCapabilities.setPBuffer(true);        
         GLCapabilitiesChooser glcc = new DefaultGLCapabilitiesChooser(); 
-        GLOffscreenAutoDrawable offscreenDrawable = glDrawableFactory.createOffscreenAutoDrawable(glDrawableFactory.getDefaultDevice(),glWindow.getChosenGLCapabilities() , glcc, 800, 600,glWindow.getContext()); 
+        GLOffscreenAutoDrawable offscreenDrawable = glDrawableFactory.createOffscreenAutoDrawable(glDrawableFactory.getDefaultDevice(),glWindow.getChosenGLCapabilities() , glcc, 800, 600); 
+        offscreenDrawable.setSharedContext(this.glWindow.getContext());
+        offscreenDrawable.display(); //to initialize lazy context loading
         offscreenLoadingBuffer = offscreenDrawable;
         
         //attach fakey animator to ignore repaint events
