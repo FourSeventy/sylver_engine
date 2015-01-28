@@ -5,6 +5,7 @@ import com.jogamp.opengl.util.glsl.ShaderProgram;
 import com.silvergobletgames.sylver.core.*;
 import com.silvergobletgames.sylver.core.Scene.Layer;
 import com.silvergobletgames.sylver.core.SceneObject.CoreGroups;
+import com.silvergobletgames.sylver.util.Log;
 import java.awt.Point;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -1434,8 +1435,7 @@ public class RenderingPipelineGL3
       estring = glu.gluErrorString(errnum);
       
       //log error to console
-        Logger logger =Logger.getLogger(RenderingPipelineGL3.class.getName());
-        logger.log(Level.SEVERE, "Tessellation Error: " + estring);
+        Log.error( "Tessellation Error: " + estring);
             
         throw new RuntimeException("Tesselation Error");
     }

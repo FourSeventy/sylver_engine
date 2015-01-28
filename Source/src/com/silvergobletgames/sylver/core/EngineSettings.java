@@ -1,5 +1,6 @@
 package com.silvergobletgames.sylver.core;
 
+import com.silvergobletgames.sylver.util.Log;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
@@ -33,7 +34,7 @@ public class EngineSettings
     public boolean profileGameLoop = false;
     public ParticleDensity particleDensity = ParticleDensity.HIGH;
     public Dimension screenResolution = new Dimension (0,0);
-    public Level logLevel = Level.WARNING;
+    public int logLevel = Log.LEVEL_INFO;
     
     public static enum ParticleDensity{
         //-WARNING
@@ -82,7 +83,7 @@ public class EngineSettings
             iniSaver.setProperty("screenResolutionHeight",Integer.toString(this.screenResolution.getHeight()));
             iniSaver.setProperty("profileRendering",Boolean.toString(this.profileRendering));
             iniSaver.setProperty("profileGameLoop",Boolean.toString(this.profileGameLoop));
-            iniSaver.setProperty("logLevel",this.logLevel.getName());
+            iniSaver.setProperty("logLevel",Integer.toString(this.logLevel));
 
             //open output stream
             OutputStream out = Files.newOutputStream(Paths.get(filePath));
@@ -91,8 +92,7 @@ public class EngineSettings
         catch(Exception e)
         {
              //log error to console
-            Logger logger =Logger.getLogger(EngineSettings.class.getName());
-            logger.log(Level.SEVERE, "Could not dump engineSettings.ini to file: " + e.getMessage(),e);
+            Log.error( "Could not dump engineSettings.ini to file: " + e.getMessage(),e);
  
         }
     }
@@ -125,7 +125,7 @@ public class EngineSettings
             ParticleDensity density = ParticleDensity.valueOf(iniLoader.getProperty("particleDensity"));
             int xResolution = Integer.parseInt(iniLoader.getProperty("screenResolutionWidth"));
             int yResolution = Integer.parseInt(iniLoader.getProperty("screenResolutionHeight"));
-            Level logLevel = Level.parse(iniLoader.getProperty("logLevel"));
+            int logLevel = Integer.parseInt(iniLoader.getProperty("logLevel"));
             
             //assign settings
             EngineSettings settings = new EngineSettings();
@@ -147,8 +147,7 @@ public class EngineSettings
         catch(Exception e)
         {
             //log error to console
-            Logger logger =Logger.getLogger(EngineSettings.class.getName());
-            logger.log(Level.SEVERE, "Could not open engineSettings.ini file: " + e.getMessage(),e);
+            Log.error( "Could not open engineSettings.ini file: " + e.getMessage(),e);
         
             
             //return a default settings object

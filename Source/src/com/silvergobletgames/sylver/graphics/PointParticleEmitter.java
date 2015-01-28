@@ -6,6 +6,7 @@ import com.silvergobletgames.sylver.netcode.SceneObjectRenderData;
 import com.silvergobletgames.sylver.netcode.SceneObjectRenderDataChanges;
 import com.silvergobletgames.sylver.netcode.SceneObjectSaveData;
 import com.silvergobletgames.sylver.util.LinearInterpolator;
+import com.silvergobletgames.sylver.util.Log;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,8 +121,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         catch(InstantiationException| IllegalAccessException e)
         {
             //log error to console
-            Logger logger =Logger.getLogger(AbstractParticleEmitter.class.getName());
-            logger.log(Level.SEVERE, "ParticleEmitter Instantiation Exception: " + e.getMessage(),e);
+            Log.error("ParticleEmitter Instantiation Exception: " + e.getMessage(),e);
           
         }
         
@@ -215,8 +215,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         catch(InstantiationException| IllegalAccessException e)
         {
             //log error to console
-            Logger logger =Logger.getLogger(PointParticleEmitter.class.getName());
-            logger.log(Level.SEVERE, "PointParticleEmitter Instantiation Exception: " + e.getMessage(),e);
+            Log.error( "PointParticleEmitter Instantiation Exception: " + e.getMessage(),e);
          
         }
        
@@ -378,8 +377,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         catch(ClassNotFoundException e)
         {
             //log error to console
-            Logger logger =Logger.getLogger(PointParticleEmitter.class.getName());
-            logger.log(Level.SEVERE, "Emitter Class Not Found: " + (String)saved.dataMap.get("factoryClass"));
+            Log.error( "Emitter Class Not Found: " + (String)saved.dataMap.get("factoryClass"));
          
             
             emitterClass = SparkEmitter.class;
@@ -407,8 +405,7 @@ public abstract class PointParticleEmitter extends AbstractParticleEmitter
         catch(InstantiationException| IllegalAccessException e)
         {
             //log error to console
-            Logger logger =Logger.getLogger(PointParticleEmitter.class.getName());
-            logger.log(Level.SEVERE, "PointParticleEmitter Instantiation Exception: " + e.getMessage(),e);
+            Log.error( "PointParticleEmitter Instantiation Exception: " + e.getMessage(),e);
         
         }
 

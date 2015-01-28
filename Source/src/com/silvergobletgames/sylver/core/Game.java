@@ -3,6 +3,7 @@ package com.silvergobletgames.sylver.core;
 
 import com.silvergobletgames.sylver.audio.AudioRenderer;
 import com.silvergobletgames.sylver.graphics.OpenGLGameWindow;
+import com.silvergobletgames.sylver.util.Log;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -99,14 +100,9 @@ public final class Game
         }
         
         //initialize logging
-        Level logLevel = this.gameConfiguration.getEngineSettings().logLevel;
-        LogManager.getLogManager().reset();
-        Logger global = Logger.getLogger("");
-        global.setLevel(logLevel);             
-        ConsoleHandler h = new ConsoleHandler(); 
-        h.setLevel(logLevel);
-        global.addHandler(h); 
-        
+        int logLevel = this.gameConfiguration.getEngineSettings().logLevel;
+        Log.set(logLevel);
+              
         //create input handler
         this.inputHandler = new InputHandler();
         
@@ -124,8 +120,7 @@ public final class Game
         catch(Exception e)
         {
             //log error to console
-            Logger logger =Logger.getLogger(Game.class.getName());
-            logger.log(Level.SEVERE, "Error Creating Graphics Window: " + e.getMessage(),e);
+            Log.error( "Error Creating Graphics Window: " + e.getMessage(),e);
             
             //exit
             this.uncaughtExceptionHandlingActions(e);
@@ -274,8 +269,7 @@ public final class Game
                     catch(java.lang.InterruptedException e)
                     {
                         //log error to console
-                        Logger logger =Logger.getLogger(Game.class.getName());
-                        logger.log(Level.SEVERE, "Error Sleeping: " + e.getMessage(),e);
+                        Log.error( "Error Sleeping: " + e.getMessage(),e);
                       
                     }   
                     endOfLoopTime = System.nanoTime();
@@ -576,9 +570,7 @@ public final class Game
         e.printStackTrace(pw);
         String stackTrace = sw.toString(); // stack trace as a string
 
-        Logger logger =Logger.getLogger(Game.class.getName());
-        logger.log(Level.SEVERE, "GAME CRASH: {0}", e.toString() + " : " +stackTrace);
-        logger.addHandler(new ConsoleHandler()); 
+        Log.error( "GAME CRASH: {0}", e.toString() + " : " +stackTrace);
         
         try
         {

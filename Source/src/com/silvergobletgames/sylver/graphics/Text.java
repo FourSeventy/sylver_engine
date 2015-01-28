@@ -11,6 +11,7 @@ import com.silvergobletgames.sylver.netcode.RenderData;
 import com.silvergobletgames.sylver.netcode.SceneObjectRenderData;
 import com.silvergobletgames.sylver.netcode.SceneObjectRenderDataChanges;
 import com.silvergobletgames.sylver.util.LinearInterpolator;
+import com.silvergobletgames.sylver.util.Log;
 import com.silvergobletgames.sylver.util.SerializableEntry;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -123,8 +124,7 @@ public class Text extends NetworkedSceneObject implements Anchorable
         if(tr == null)
         {
              //log error to console
-            Logger logger =Logger.getLogger(Text.class.getName());
-            logger.log(Level.SEVERE, "Text Renderer " + textType.toString() + ", is not registered");
+            Log.error( "Text Renderer " + textType.toString() + ", is not registered");
         
         
             tr = Game.getInstance().getGraphicsWindow().getTextRenderers().get(CoreTextType.DEFAULT);

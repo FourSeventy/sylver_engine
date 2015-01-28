@@ -13,6 +13,7 @@ import com.silvergobletgames.sylver.graphics.AnimationPack.ImageAnimation;
 import com.silvergobletgames.sylver.graphics.ImageEffect.ImageEffectType;
 import com.silvergobletgames.sylver.netcode.*;
 import com.silvergobletgames.sylver.util.LinearInterpolator;
+import com.silvergobletgames.sylver.util.Log;
 import com.silvergobletgames.sylver.util.SerializableEntry;
 import java.awt.Point;
 import java.nio.ByteBuffer;
@@ -1125,8 +1126,7 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
             catch(InstantiationException| IllegalAccessException e)
             {
                 //log error to console
-                Logger logger =Logger.getLogger(Image.class.getName());
-                logger.log(Level.SEVERE, "AnimationPack Instantiation Exception: " + e.getMessage(),e);
+                Log.error( "AnimationPack Instantiation Exception: " + e.getMessage(),e);
     
                 
                 //use default animation pack
@@ -1582,8 +1582,7 @@ public class Image extends NetworkedSceneObject implements SavableSceneObject, A
             catch(InstantiationException| ClassNotFoundException | IllegalAccessException e)
             {
                 //log error to console
-                Logger logger =Logger.getLogger(Image.class.getName());
-                logger.log(Level.SEVERE, "AnimationPack Instantiation Exception: " + e.getMessage(),e);
+                Log.error( "AnimationPack Instantiation Exception: " + e.getMessage(),e);
         
                 
                 animationPack = new DefaultAnimationPack();

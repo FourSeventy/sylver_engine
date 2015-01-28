@@ -1,5 +1,6 @@
 package com.silvergobletgames.sylver.graphics;
 
+import com.silvergobletgames.sylver.util.Log;
 import com.jogamp.newt.MonitorDevice;
 import com.jogamp.newt.MonitorMode;
 import com.jogamp.newt.Screen;
@@ -29,8 +30,6 @@ import java.security.CodeSource;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.media.nativewindow.WindowClosingProtocol;
@@ -84,12 +83,10 @@ public class OpenGLGameWindow implements GLEventListener
 
     public OpenGLGameWindow() 
     {  
-        
         //gets the glProfile and checks for GL capabilities
         GLProfile glProfile = GLProfile.getDefault();  
-        Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName()); 
-        logger.log(Level.INFO, "Initializing OpenGL:");
-        logger.log(Level.INFO, "\n GL Implementation: " + glProfile.getImplName() +
+        Log.info("Initializing OpenGL:");
+        Log.info("\n GL Implementation: " + glProfile.getImplName() +
                                "\n Is capable of GL2: " + glProfile.isGL2() + 
                                "\n" + " Is capable of GL3: " + glProfile.isGL3()+ 
                                "\n" + " Is capable of GLSL: " + glProfile.hasGLSL()  + "\n" );
@@ -158,7 +155,7 @@ public class OpenGLGameWindow implements GLEventListener
         glOffscreenCapabilities.setFBO(false);
         glOffscreenCapabilities.setPBuffer(true);        
         GLCapabilitiesChooser glcc = new DefaultGLCapabilitiesChooser(); 
-        GLOffscreenAutoDrawable offscreenDrawable = glDrawableFactory.createOffscreenAutoDrawable(glDrawableFactory.getDefaultDevice(),glWindow.getChosenGLCapabilities() , glcc, 800, 600); 
+        GLOffscreenAutoDrawable offscreenDrawable = glDrawableFactory.createOffscreenAutoDrawable(glDrawableFactory.getDefaultDevice(),glWindow.getChosenGLCapabilities() , glcc, 2, 2); 
         offscreenDrawable.setSharedContext(this.glWindow.getContext());
         offscreenDrawable.display(); //to initialize lazy context loading
         offscreenLoadingBuffer = offscreenDrawable;
@@ -290,16 +287,14 @@ public class OpenGLGameWindow implements GLEventListener
     //openGL dispose callback
     public void dispose(GLAutoDrawable drawable) 
     {
-        Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
-        logger.log(Level.INFO, "OpenGL dispose()");
+        Log.trace("OpenGL dispose()");
     }
 
     //openGL init callback
     public void init(GLAutoDrawable drawable) 
     {
            
-        Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
-        logger.log(Level.INFO, "OpenGL init()");
+        Log.trace( "OpenGL init()");
                         
         //get graphics context
         GL2 gl = drawable.getGL().getGL2();
@@ -404,8 +399,7 @@ public class OpenGLGameWindow implements GLEventListener
     //openGL reshape callback
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height)
     {
-        Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
-        logger.log(Level.INFO, "OpenGL reshape()" +"Width: " + width + ", Height: "+height);
+        Log.info( "OpenGL reshape(): " +"Width: " + width + ", Height: "+height);
         
         //gets the appropriate graphics context from the glWindow
         GL2 gl;
@@ -470,8 +464,7 @@ public class OpenGLGameWindow implements GLEventListener
     //openGL display changed callback
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged)
     {
-        Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
-        logger.log(Level.INFO, "OpenGL displayChanged()");
+        Log.trace( "OpenGL displayChanged()");
     }
     
     
@@ -629,8 +622,7 @@ public class OpenGLGameWindow implements GLEventListener
             MonitorMode sm = (MonitorMode) monitorModes.get(0); 
             glWindow.getMainMonitor().setCurrentMode(sm); 
 
-            Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
-            logger.log(Level.INFO, "Set to monitor mode: " + sm.toString());
+            Log.info( "Set to monitor mode: " + sm.toString());
         }
              
     }
@@ -803,8 +795,7 @@ public class OpenGLGameWindow implements GLEventListener
         catch (IOException |URISyntaxException ex)
         {
             //log error to console
-            Logger errorLogger =Logger.getLogger(OpenGLGameWindow.class.getName());
-            errorLogger.log(Level.SEVERE, "Error Loading System Texture: " + ex.getMessage(), ex);
+            Log.error( "Error Loading System Texture: " + ex.getMessage(), ex);
        
         }
     }
@@ -1033,13 +1024,12 @@ public class OpenGLGameWindow implements GLEventListener
        this.currentAspectRatio = ratioList[indexOfClosest];
        
        //debug
-       Logger logger =Logger.getLogger(OpenGLGameWindow.class.getName());
        switch(indexOfClosest)
        {
-           case 0: logger.log(Level.INFO,"Detected Aspect Ratio 16:9"); break;
-           case 1: logger.log(Level.INFO,"Detected Aspect Ratio 16:10"); break;
-           case 2: logger.log(Level.INFO,"Detected Aspect Ratio 5:4"); break;
-           case 3: logger.log(Level.INFO,"Detected Aspect Ratio 4:3"); break;
+           case 0: Log.info("Detected Aspect Ratio 16:9"); break;
+           case 1: Log.info("Detected Aspect Ratio 16:10"); break;
+           case 2: Log.info("Detected Aspect Ratio 5:4"); break;
+           case 3: Log.info("Detected Aspect Ratio 4:3"); break;
        }
                       
     }

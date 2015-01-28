@@ -5,11 +5,9 @@ import com.silvergobletgames.sylver.core.SceneObject.CoreClasses;
 import com.silvergobletgames.sylver.core.SceneObject.SceneObjectClassMask;
 import com.silvergobletgames.sylver.graphics.Image;
 import com.silvergobletgames.sylver.graphics.TextureLoader;
+import com.silvergobletgames.sylver.util.Log;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public abstract class SceneObjectDeserializer
@@ -47,8 +45,7 @@ public abstract class SceneObjectDeserializer
         catch(NoSuchMethodException | IllegalAccessException |InvocationTargetException e)
         {
             //log error to console
-            Logger logger =Logger.getLogger(SceneObjectDeserializer.class.getName());
-            logger.log(Level.SEVERE, "Build Scene Object From Render Data Fail: " + e.getMessage(),e);
+            Log.error( "Build Scene Object From Render Data Fail: " + e.getMessage(),e);
      
                 
             return new Image("textureMissing.jpg");
@@ -91,8 +88,7 @@ public abstract class SceneObjectDeserializer
         catch(NoSuchMethodException | IllegalAccessException |InvocationTargetException e)
         {
             //log error to console
-            Logger logger =Logger.getLogger(SceneObjectDeserializer.class.getName());
-            logger.log(Level.SEVERE, "Build Scene Object From Save Data Fail: " + e.getMessage(),e);
+            Log.error( "Build Scene Object From Save Data Fail: " + e.getMessage(),e);
           
             
             throw new Exception("Scene Object Construction Failed");

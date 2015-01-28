@@ -6,6 +6,7 @@ import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 import com.jogamp.opengl.util.glsl.ShaderState;
 import com.silvergobletgames.sylver.core.Game;
+import com.silvergobletgames.sylver.util.Log;
 import java.util.ArrayList;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -60,8 +61,7 @@ public class ShaderLoader {
          else
          {
              //log error to console
-            Logger logger =Logger.getLogger(ShaderLoader.class.getName());
-            logger.log(Level.SEVERE, "Failed to get shader: " +vertex +","+fragment);
+            Log.error( "Failed to get shader: " +vertex +","+fragment);
         
             
    
@@ -146,8 +146,7 @@ public class ShaderLoader {
         catch(Exception e)
         {
             //log error to console
-            Logger logger =Logger.getLogger(ShaderLoader.class.getName());
-            logger.log(Level.SEVERE, "Error Loading Shader From Disk: " + e.getMessage(),e);
+            Log.error( "Error Loading Shader From Disk: " + e.getMessage(),e);
         
         }
         

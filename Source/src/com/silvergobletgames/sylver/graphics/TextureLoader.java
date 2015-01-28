@@ -3,6 +3,7 @@ package com.silvergobletgames.sylver.graphics;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.silvergobletgames.sylver.core.Game;
+import com.silvergobletgames.sylver.util.Log;
 import com.sun.nio.zipfs.ZipFileSystem;
 import java.io.File;
 import java.io.IOException;
@@ -24,9 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.media.opengl.GLException;
 
 /**
@@ -69,8 +67,7 @@ public class TextureLoader
         else 
         {
              //log error to console
-            Logger logger =Logger.getLogger(TextureLoader.class.getName());
-            logger.log(Level.SEVERE, "Error getting texture: " + identifier + ":  " + Thread.currentThread().toString());
+            Log.error( "Error getting texture: " + identifier + ":  " + Thread.currentThread().toString());
            
                 
             return loadedTextures.get("texturemissing.jpg");
@@ -131,8 +128,7 @@ public class TextureLoader
         catch (Exception e) 
         { 
             //log error to console
-            Logger logger =Logger.getLogger(TextureLoader.class.getName());
-            logger.log(Level.SEVERE, "Error Loading Texture: " + resourceURI.toString() + " : " + e.getMessage(),e);
+            Log.error( "Error Loading Texture: " + resourceURI.toString() + " : " + e.getMessage(),e);
         
         }
         finally
@@ -181,8 +177,7 @@ public class TextureLoader
             catch (Exception e) 
             { 
                 //log error to console
-                Logger logger =Logger.getLogger(TextureLoader.class.getName());
-                logger.log(Level.SEVERE, "Error Loading Texture: " + resourceURI.toString() + " : " + e.getMessage(),e);
+                Log.error( "Error Loading Texture: " + resourceURI.toString() + " : " + e.getMessage(),e);
 
             }
         }
@@ -242,8 +237,7 @@ public class TextureLoader
                         catch(URISyntaxException e)
                         {
                             //log error to console
-                            Logger logger =Logger.getLogger(TextureLoader.class.getName());
-                            logger.log(Level.SEVERE, "Error Loading All Textures: " + e.getMessage(),e);
+                            Log.error( "Error Loading All Textures: " + e.getMessage(),e);
                        
                         }
                     }

@@ -3,6 +3,7 @@ package com.silvergobletgames.sylver.audio;
 
 import com.silvergobletgames.sylver.core.Game;
 import com.silvergobletgames.sylver.graphics.TextureLoader;
+import com.silvergobletgames.sylver.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
@@ -15,10 +16,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.jar.JarEntry;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import paulscode.sound.Library;
@@ -58,8 +55,7 @@ public class AudioRenderer {
         catch( SoundSystemException e )
         {
             //log error to console
-            Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-            logger.log(Level.SEVERE, "Sound System Config Problem: " + e.getMessage(),e); 
+            Log.error( "Sound System Config Problem: " + e.getMessage(),e); 
         }
         Class libraryType;
         boolean jSCompatible = true; // SoundSystem.libraryCompatible( LibraryJavaSound.class );// TODO - library fix
@@ -79,8 +75,7 @@ public class AudioRenderer {
         catch(SoundSystemException sse)
         {
             //log error to console
-            Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-            logger.log(Level.SEVERE, "Sound System Initialization Error: " + sse.getMessage(),sse);
+            Log.error("Sound System Initialization Error: " + sse.getMessage(),sse);
                      
             return;
         }
@@ -168,8 +163,7 @@ public class AudioRenderer {
                         }
                         catch (MalformedURLException ex)
                         {
-                            Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                            logger.log(Level.SEVERE, "MalformedURL while trying to load sound: " +ex.getMessage(), ex);
+                            Log.error( "MalformedURL while trying to load sound: " +ex.getMessage(), ex);
                         }
                     
                     return FileVisitResult.CONTINUE;
@@ -227,8 +221,7 @@ public class AudioRenderer {
                     catch (Exception ex)
                     {
                         //log error to console
-                        Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.getMessage(),ex);
+                        Log.error( "Couldnt get sound path: " + ex.getMessage(),ex);
                    
                     }
                    break;
@@ -258,8 +251,7 @@ public class AudioRenderer {
                     catch (Exception ex)
                     {
                         //log error to console
-                        Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.getMessage(),ex);
+                        Log.error( "Couldnt get sound path: " + ex.getMessage(),ex);
                    
                     }
                     
@@ -280,8 +272,7 @@ public class AudioRenderer {
                     catch (Exception ex)
                     {
                         //log error to console
-                        Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.getMessage(),ex);
+                        Log.error( "Couldnt get sound path: " + ex.getMessage(),ex);
                     }
                     
                     break;
@@ -300,8 +291,7 @@ public class AudioRenderer {
                     catch(Exception ex)
                     {
                         //log error to console
-                        Logger logger =Logger.getLogger(AudioRenderer.class.getName());
-                        logger.log(Level.SEVERE, "Couldnt get sound path: " + ex.getMessage(),ex);
+                        Log.error( "Couldnt get sound path: " + ex.getMessage(),ex);
                     }
                     
                     break;
