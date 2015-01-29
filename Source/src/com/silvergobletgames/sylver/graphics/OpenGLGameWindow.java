@@ -100,13 +100,12 @@ public class OpenGLGameWindow implements GLEventListener
         glCapabilities.setSampleBuffers(false);
         
         //build and initialize our NEWT glWindow
-        glWindow = GLWindow.create(glCapabilities);
-        glWindow.setTitle("Lead Crystal");
-        glWindow.addGLEventListener(this);
+        glWindow = GLWindow.create(glCapabilities);    
         glWindow.setAutoSwapBufferMode(false);  //important to manually swap our buffers !dont change!
         glWindow.setAlwaysOnTop(false);
         glWindow.setUpdateFPSFrames(10, null);
         glWindow.setPosition(10 , 30);
+        glWindow.setTitle("");
                        
         //local fullscreen variable
         boolean isFullscreen = Game.getInstance().getConfiguration().getEngineSettings().fullScreen;
@@ -115,6 +114,7 @@ public class OpenGLGameWindow implements GLEventListener
 
         //set visible and set the screen size and fullscreen //!! ABSOLUTELY MUST SET VISIBLE BEFORE ANYTHING ELSE!!!
         glWindow.setVisible(true); 
+        glWindow.requestFocus();
         
         //this is to have a more clean entrance into fullscreen mode
         if(isFullscreen)
@@ -144,10 +144,14 @@ public class OpenGLGameWindow implements GLEventListener
         }  
         else
         {
-          this.setVSync(false);
+            this.setVSync(false);
         }
 
      
+        //add event listener and initialize it
+        glWindow.addGLEventListener(this);
+        glWindow.display();
+       
         //set up loading buffer      
         GLDrawableFactory glDrawableFactory = GLDrawableFactory.getFactory(glProfile);
         GLCapabilities glOffscreenCapabilities = new GLCapabilities(glProfile);
@@ -215,6 +219,8 @@ public class OpenGLGameWindow implements GLEventListener
        });      
        glWindow.getAnimator().start();
 
+       
+       
     }
     
     public void postInit()
@@ -589,6 +595,15 @@ public class OpenGLGameWindow implements GLEventListener
                 }
             });
        
+    }
+    
+    /**
+     * Sets the window title.
+     * @param title 
+     */
+    public void setTitle(String title)
+    {
+        this.glWindow.setTitle(title);
     }
     
     /**
