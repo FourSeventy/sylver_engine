@@ -90,6 +90,16 @@ public class InputHandler implements MouseListener,KeyListener
         return this.inputSnapshot;
     }
     
+    public void clear()
+    {
+        this.typedKeys.clear();
+        this.pressedMap.clear();
+        this.releasedMap.clear();
+        this.mouseDown = false;
+        this.mouseClicked = false;
+        this.mouseMoved = false;
+    }
+    
 
     //===================
     //Key Event Handlers

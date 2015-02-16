@@ -261,7 +261,7 @@ public class OpenGLGameWindow implements GLEventListener
             @Override
             public void windowLostFocus(com.jogamp.newt.event.WindowEvent we)
             {
-              
+              Game.getInstance().getInputHandler().clear();
             }
 
             @Override
