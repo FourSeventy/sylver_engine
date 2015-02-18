@@ -639,6 +639,8 @@ public class OpenGLGameWindow implements GLEventListener
 
             Log.info( "Set to monitor mode: " + sm.toString());
         }
+        
+        this.determineAspectRatio();
              
     }
        
